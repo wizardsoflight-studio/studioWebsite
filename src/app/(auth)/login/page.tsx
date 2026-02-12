@@ -31,8 +31,8 @@ export default function LoginPage() {
             return;
         }
 
-        router.push('/account');
-        router.refresh();
+        // Use window.location.href to force a hard refresh and ensure middleware/cookies sync
+        window.location.href = '/account';
     };
 
     const handleSocialLogin = async (provider: 'google' | 'discord') => {
