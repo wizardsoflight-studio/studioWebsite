@@ -1,0 +1,119 @@
+.gallery {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    width: 100%;
+}
+
+.mainDisplay {
+    position: relative;
+    width: 100%;
+    aspect-ratio: 1;
+    background-color: var(--color-surface);
+    border-radius: var(--radius-md);
+    overflow: hidden;
+    border: 1px solid var(--color-border);
+}
+
+.mainImage {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+}
+
+.videoWrapper {
+    width: 100%;
+    height: 100%;
+    background-color: #000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.iframe {
+    width: 100%;
+    height: 100%;
+    border: none;
+}
+
+.videoError {
+    text-align: center;
+    color: var(--color-text-muted);
+    padding: 1rem;
+}
+
+.videoLink {
+    color: var(--color-primary);
+    text-decoration: underline;
+    margin-top: 0.5rem;
+    display: block;
+}
+
+.thumbnailStrip {
+    display: flex;
+    gap: 0.75rem;
+    overflow-x: auto;
+    padding-bottom: 0.5rem;
+    scrollbar-width: thin;
+    scrollbar-color: var(--color-border) transparent;
+}
+
+.thumbnailStrip::-webkit-scrollbar {
+    height: 4px;
+}
+
+.thumbnailStrip::-webkit-scrollbar-thumb {
+    background-color: var(--color-border);
+    border-radius: 4px;
+}
+
+.thumbnail {
+    flex: 0 0 80px;
+    width: 80px;
+    height: 80px;
+    border-radius: var(--radius-sm);
+    overflow: hidden;
+    border: 2px solid transparent;
+    background-color: var(--color-surface);
+    cursor: pointer;
+    padding: 0;
+    transition: border-color 0.2s, opacity 0.2s;
+}
+
+.thumbnail:hover {
+    opacity: 0.8;
+}
+
+.thumbnail.selected {
+    border-color: var(--color-primary);
+}
+
+.thumbnailImage {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+}
+
+.videoThumbnail {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: var(--color-surface-hover);
+    color: var(--color-text);
+}
+
+.placeholderContainer {
+    width: 100%;
+    aspect-ratio: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: var(--color-surface);
+    border-radius: var(--radius-md);
+    border: 1px solid var(--color-border);
+    color: var(--color-text-muted);
+}

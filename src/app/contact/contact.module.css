@@ -1,0 +1,187 @@
+.contactPage {
+    padding: var(--space-3xl) 0 var(--space-5xl);
+    min-height: calc(100vh - var(--header-height));
+}
+
+.pageHeader {
+    text-align: center;
+    margin-bottom: var(--space-3xl);
+}
+
+.pageTitle {
+    font-family: var(--font-display);
+    font-size: var(--text-5xl);
+    color: var(--color-text-primary);
+    margin-bottom: var(--space-sm);
+}
+
+.pageSubtitle {
+    font-family: var(--font-subtitle);
+    font-size: var(--text-xl);
+    color: var(--color-text-muted);
+}
+
+.contactLayout {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: var(--space-3xl);
+}
+
+/* ---- Form ---- */
+.formSection {
+    background: var(--color-bg-card);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-lg);
+    padding: var(--space-2xl);
+}
+
+.formSection h2 {
+    font-family: var(--font-subtitle);
+    font-size: var(--text-2xl);
+    color: var(--color-text-primary);
+    margin-bottom: var(--space-xl);
+}
+
+.formGroup {
+    margin-bottom: var(--space-lg);
+}
+
+.formGroup label {
+    display: block;
+    font-size: var(--text-sm);
+    color: var(--color-text-secondary);
+    margin-bottom: var(--space-xs);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+.formInput {
+    width: 100%;
+    padding: var(--space-md);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+    background: var(--color-bg-primary);
+    color: var(--color-text-primary);
+    font-family: var(--font-body);
+    font-size: var(--text-base);
+    transition: border-color var(--transition-fast);
+}
+
+.formInput:focus {
+    outline: none;
+    border-color: var(--color-accent-primary);
+}
+
+.formInput::placeholder {
+    color: var(--color-text-muted);
+}
+
+.formTextarea {
+    min-height: 150px;
+    resize: vertical;
+}
+
+.formSelect {
+    appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' fill='%23999' viewBox='0 0 16 16'%3E%3Cpath d='M8 11L3 6h10l-5 5z'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 12px center;
+    padding-right: var(--space-2xl);
+}
+
+.submitBtn {
+    width: 100%;
+    padding: var(--space-md) var(--space-2xl);
+    background: var(--color-cta);
+    color: var(--color-white);
+    border: none;
+    border-radius: var(--radius-md);
+    font-family: var(--font-body);
+    font-size: var(--text-base);
+    font-weight: var(--weight-semibold);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    cursor: pointer;
+    transition: all var(--transition-base);
+}
+
+.submitBtn:hover {
+    background: var(--color-cta-hover);
+    box-shadow: var(--shadow-glow-orange);
+    transform: translateY(-2px);
+}
+
+/* ---- Info Sidebar ---- */
+.infoSection {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-xl);
+}
+
+.infoCard {
+    background: var(--color-bg-card);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-lg);
+    padding: var(--space-xl);
+}
+
+.infoCard h3 {
+    font-family: var(--font-subtitle);
+    font-size: var(--text-lg);
+    color: var(--color-accent-secondary);
+    margin-bottom: var(--space-md);
+    display: flex;
+    align-items: center;
+    gap: var(--space-sm);
+}
+
+.infoCard h3 svg {
+    flex-shrink: 0;
+}
+
+.infoItem {
+    display: flex;
+    align-items: center;
+    gap: var(--space-sm);
+    font-size: var(--text-sm);
+    color: var(--color-text-secondary);
+    margin-bottom: var(--space-sm);
+}
+
+.infoItem svg {
+    color: var(--color-accent-primary);
+    flex-shrink: 0;
+}
+
+.infoCard p {
+    font-size: var(--text-sm);
+    color: var(--color-text-muted);
+    line-height: var(--leading-relaxed);
+}
+
+.faqList {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-md);
+}
+
+.faqItem h4 {
+    font-size: var(--text-base);
+    color: var(--color-text-primary);
+    margin-bottom: var(--space-xs);
+}
+
+.faqItem p {
+    font-size: var(--text-sm);
+    color: var(--color-text-muted);
+}
+
+@media (max-width: 768px) {
+    .pageTitle {
+        font-size: var(--text-3xl);
+    }
+
+    .contactLayout {
+        grid-template-columns: 1fr;
+    }
+}

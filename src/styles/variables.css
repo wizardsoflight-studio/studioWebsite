@@ -1,0 +1,118 @@
+/* ========================================
+   Wizard Of Light — Design Tokens
+   ======================================== */
+
+:root {
+  /* ---- Brand Colors ---- */
+  --color-black: #000000;
+  --color-orange: #FE602F;
+  --color-plum: #820263;
+  --color-dark-gray: #1A1A1A;
+  --color-mid-gray: #2A2A2A;
+  --color-light-gray: #E5E5E5;
+  --color-white: #FFFFFF;
+
+  /* ---- Semantic Colors ---- */
+  --color-bg-primary: var(--color-black);
+  --color-bg-elevated: var(--color-dark-gray);
+  --color-bg-card: var(--color-mid-gray);
+  --color-text-primary: var(--color-white);
+  --color-text-secondary: #CCCCCC;
+  --color-text-muted: #999999;
+  --color-accent-primary: var(--color-orange);
+  --color-accent-secondary: var(--color-plum);
+  --color-cta: var(--color-orange);
+  --color-cta-hover: #FF7A50;
+  --color-plum-hover: #9A0375;
+
+  /* ---- Status Colors ---- */
+  --color-success: #22C55E;
+  --color-warning: #F59E0B;
+  --color-error: #EF4444;
+  --color-info: #3B82F6;
+
+  /* ---- Border Colors ---- */
+  --color-border: #333333;
+  --color-border-hover: #555555;
+  --color-border-accent: var(--color-orange);
+
+  /* ---- Typography ---- */
+  --font-display: 'Comforter', cursive;
+  --font-subtitle: 'Charm', serif;
+  --font-body: 'Alice', serif;
+
+  /* Font Sizes */
+  --text-xs: 0.75rem;
+  --text-sm: 0.875rem;
+  --text-base: 1rem;
+  --text-lg: 1.125rem;
+  --text-xl: 1.25rem;
+  --text-2xl: 1.5rem;
+  --text-3xl: 1.875rem;
+  --text-4xl: 2.25rem;
+  --text-5xl: 3rem;
+  --text-6xl: 3.75rem;
+  --text-hero: 5rem;
+
+  /* Font Weights */
+  --weight-normal: 400;
+  --weight-medium: 500;
+  --weight-semibold: 600;
+  --weight-bold: 700;
+
+  /* Line Heights */
+  --leading-tight: 1.15;
+  --leading-snug: 1.3;
+  --leading-normal: 1.5;
+  --leading-relaxed: 1.75;
+
+  /* ---- Spacing ---- */
+  --space-xs: 0.25rem;
+  --space-sm: 0.5rem;
+  --space-md: 1rem;
+  --space-lg: 1.5rem;
+  --space-xl: 2rem;
+  --space-2xl: 3rem;
+  --space-3xl: 4rem;
+  --space-4xl: 6rem;
+  --space-5xl: 8rem;
+
+  /* ---- Border Radius ---- */
+  --radius-sm: 4px;
+  --radius-md: 8px;
+  --radius-lg: 12px;
+  --radius-xl: 16px;
+  --radius-2xl: 24px;
+  --radius-full: 9999px;
+
+  /* ---- Shadows ---- */
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.5);
+  --shadow-md: 0 4px 6px rgba(0, 0, 0, 0.4);
+  --shadow-lg: 0 10px 15px rgba(0, 0, 0, 0.5);
+  --shadow-xl: 0 20px 25px rgba(0, 0, 0, 0.6);
+  --shadow-glow-orange: 0 0 20px rgba(254, 96, 47, 0.3);
+  --shadow-glow-plum: 0 0 20px rgba(130, 2, 99, 0.3);
+
+  /* ---- Transitions ---- */
+  --transition-fast: 150ms ease;
+  --transition-base: 250ms ease;
+  --transition-slow: 400ms ease;
+  --transition-spring: 500ms cubic-bezier(0.34, 1.56, 0.64, 1);
+
+  /* ---- Layout ---- */
+  --container-sm: 640px;
+  --container-md: 768px;
+  --container-lg: 1024px;
+  --container-xl: 1280px;
+  --container-2xl: 1440px;
+  --header-height: 80px;
+  --sidebar-width: 280px;
+
+  /* ---- Z-Index ---- */
+  --z-base: 1;
+  --z-dropdown: 10;
+  --z-sticky: 20;
+  --z-overlay: 30;
+  --z-modal: 40;
+  --z-toast: 50;
+}

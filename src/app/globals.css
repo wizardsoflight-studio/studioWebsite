@@ -1,0 +1,178 @@
+/* ========================================
+   Wizard Of Light — Global Styles
+   ======================================== */
+
+@import url('https://fonts.googleapis.com/css2?family=Alice&family=Charm:wght@400;700&family=Comforter&display=swap');
+@import '../styles/variables.css';
+
+/* ---- Reset & Base ---- */
+*,
+*::before,
+*::after {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+html {
+    scroll-behavior: smooth;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+}
+
+body {
+    font-family: var(--font-body);
+    font-size: var(--text-base);
+    line-height: var(--leading-normal);
+    color: var(--color-text-primary);
+    background-color: var(--color-bg-primary);
+    min-height: 100vh;
+}
+
+/* ---- Typography ---- */
+h1,
+.h1 {
+    font-family: var(--font-display);
+    font-size: var(--text-hero);
+    line-height: var(--leading-tight);
+    color: var(--color-text-primary);
+}
+
+h2,
+.h2 {
+    font-family: var(--font-subtitle);
+    font-size: var(--text-4xl);
+    line-height: var(--leading-tight);
+    color: var(--color-text-primary);
+}
+
+h3,
+.h3 {
+    font-family: var(--font-subtitle);
+    font-size: var(--text-2xl);
+    line-height: var(--leading-snug);
+    color: var(--color-text-primary);
+}
+
+h4,
+.h4 {
+    font-family: var(--font-subtitle);
+    font-size: var(--text-xl);
+    line-height: var(--leading-snug);
+    color: var(--color-text-primary);
+}
+
+p {
+    color: var(--color-text-secondary);
+    line-height: var(--leading-relaxed);
+}
+
+a {
+    color: var(--color-accent-primary);
+    text-decoration: none;
+    transition: color var(--transition-fast);
+}
+
+a:hover {
+    color: var(--color-cta-hover);
+}
+
+/* ---- Utility Classes ---- */
+.container {
+    width: 100%;
+    max-width: var(--container-xl);
+    margin: 0 auto;
+    padding: 0 var(--space-lg);
+}
+
+.container-sm {
+    max-width: var(--container-md);
+}
+
+.sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border-width: 0;
+}
+
+/* ---- Scrollbar ---- */
+::-webkit-scrollbar {
+    width: 8px;
+}
+
+::-webkit-scrollbar-track {
+    background: var(--color-bg-primary);
+}
+
+::-webkit-scrollbar-thumb {
+    background: var(--color-border);
+    border-radius: var(--radius-full);
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: var(--color-border-hover);
+}
+
+/* ---- Selection ---- */
+::selection {
+    background: var(--color-plum);
+    color: var(--color-white);
+}
+
+/* ---- Focus Styles ---- */
+:focus-visible {
+    outline: 2px solid var(--color-accent-primary);
+    outline-offset: 2px;
+}
+
+/* ---- Images ---- */
+img {
+    max-width: 100%;
+    height: auto;
+    display: block;
+}
+
+/* ---- Buttons base ---- */
+button {
+    cursor: pointer;
+    font-family: var(--font-body);
+    border: none;
+    background: none;
+}
+
+/* ---- Forms base ---- */
+input,
+textarea,
+select {
+    font-family: var(--font-body);
+    font-size: var(--text-base);
+}
+
+/* ---- Responsive ---- */
+@media (max-width: 768px) {
+
+    h1,
+    .h1 {
+        font-size: var(--text-4xl);
+    }
+
+    h2,
+    .h2 {
+        font-size: var(--text-3xl);
+    }
+
+    h3,
+    .h3 {
+        font-size: var(--text-xl);
+    }
+
+    .container {
+        padding: 0 var(--space-md);
+    }
+}
