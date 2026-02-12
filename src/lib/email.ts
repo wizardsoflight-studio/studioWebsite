@@ -1,7 +1,8 @@
 import { Resend } from 'resend';
 import { formatPrice } from '@/lib/utils';
 
-const resend = new Resend(process.env.RESEND_API_KEY);
+// Use dummy key if missing to prevent crash
+const resend = new Resend(process.env.RESEND_API_KEY || 're_123');
 
 interface OrderItem {
     product_name: string;

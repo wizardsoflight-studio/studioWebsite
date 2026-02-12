@@ -41,7 +41,7 @@ create trigger on_auth_user_created
 
 -- ---- Categories ----
 create table public.categories (
-  id uuid primary key default uuid_generate_v4(),
+  id uuid primary key default gen_random_uuid(),
   name text not null,
   slug text not null unique,
   description text,
@@ -52,7 +52,7 @@ create table public.categories (
 
 -- ---- Products ----
 create table public.products (
-  id uuid primary key default uuid_generate_v4(),
+  id uuid primary key default gen_random_uuid(),
   name text not null,
   slug text not null unique,
   description text not null default '',
@@ -74,7 +74,7 @@ create table public.product_categories (
 
 -- ---- Product Variants ----
 create table public.product_variants (
-  id uuid primary key default uuid_generate_v4(),
+  id uuid primary key default gen_random_uuid(),
   product_id uuid references public.products on delete cascade not null,
   sku text not null unique,
   name text not null,
@@ -89,7 +89,7 @@ create table public.product_variants (
 
 -- ---- Product Images ----
 create table public.product_images (
-  id uuid primary key default uuid_generate_v4(),
+  id uuid primary key default gen_random_uuid(),
   product_id uuid references public.products on delete cascade not null,
   url text not null,
   alt text,
@@ -100,7 +100,7 @@ create table public.product_images (
 
 -- ---- Shipping Addresses ----
 create table public.shipping_addresses (
-  id uuid primary key default uuid_generate_v4(),
+  id uuid primary key default gen_random_uuid(),
   user_id uuid references public.profiles on delete cascade not null,
   full_name text not null,
   line1 text not null,
@@ -116,7 +116,7 @@ create table public.shipping_addresses (
 
 -- ---- Orders ----
 create table public.orders (
-  id uuid primary key default uuid_generate_v4(),
+  id uuid primary key default gen_random_uuid(),
   user_id uuid references public.profiles on delete set null,
   status text not null default 'pending'
     check (status in (
@@ -140,7 +140,7 @@ create table public.orders (
 
 -- ---- Order Items ----
 create table public.order_items (
-  id uuid primary key default uuid_generate_v4(),
+  id uuid primary key default gen_random_uuid(),
   order_id uuid references public.orders on delete cascade not null,
   product_id uuid references public.products on delete set null,
   variant_id uuid references public.product_variants on delete set null,
@@ -155,7 +155,7 @@ create table public.order_items (
 
 -- ---- Cart Items ----
 create table public.cart_items (
-  id uuid primary key default uuid_generate_v4(),
+  id uuid primary key default gen_random_uuid(),
   user_id uuid references public.profiles on delete cascade not null,
   variant_id uuid references public.product_variants on delete cascade not null,
   quantity int not null default 1,
@@ -165,7 +165,7 @@ create table public.cart_items (
 
 -- ---- Wishlists ----
 create table public.wishlists (
-  id uuid primary key default uuid_generate_v4(),
+  id uuid primary key default gen_random_uuid(),
   user_id uuid references public.profiles on delete cascade not null,
   product_id uuid references public.products on delete cascade not null,
   notify_restock boolean not null default false,
@@ -175,7 +175,7 @@ create table public.wishlists (
 
 -- ---- Reviews ----
 create table public.reviews (
-  id uuid primary key default uuid_generate_v4(),
+  id uuid primary key default gen_random_uuid(),
   product_id uuid references public.products on delete cascade not null,
   user_id uuid references public.profiles on delete cascade not null,
   rating int not null check (rating >= 1 and rating <= 5),
@@ -189,7 +189,7 @@ create table public.reviews (
 
 -- ---- Events ----
 create table public.events (
-  id uuid primary key default uuid_generate_v4(),
+  id uuid primary key default gen_random_uuid(),
   title text not null,
   description text not null default '',
   start_date timestamptz not null,
@@ -206,7 +206,7 @@ create table public.events (
 
 -- ---- Journal Posts ----
 create table public.journal_posts (
-  id uuid primary key default uuid_generate_v4(),
+  id uuid primary key default gen_random_uuid(),
   title text not null,
   slug text not null unique,
   content text not null default '',
@@ -222,7 +222,7 @@ create table public.journal_posts (
 
 -- ---- Journal Tags ----
 create table public.journal_tags (
-  id uuid primary key default uuid_generate_v4(),
+  id uuid primary key default gen_random_uuid(),
   name text not null unique,
   slug text not null unique,
   created_at timestamptz not null default now()
@@ -237,7 +237,7 @@ create table public.journal_post_tags (
 
 -- ---- Comments ----
 create table public.comments (
-  id uuid primary key default uuid_generate_v4(),
+  id uuid primary key default gen_random_uuid(),
   post_id uuid references public.journal_posts on delete cascade not null,
   user_id uuid references public.profiles on delete cascade not null,
   body text not null,
@@ -247,7 +247,7 @@ create table public.comments (
 
 -- ---- Shipping Zones ----
 create table public.shipping_zones (
-  id uuid primary key default uuid_generate_v4(),
+  id uuid primary key default gen_random_uuid(),
   name text not null,
   countries text[] not null default '{}',
   flat_rate int, -- in cents
@@ -258,7 +258,7 @@ create table public.shipping_zones (
 
 -- ---- Staff Permissions ----
 create table public.staff_permissions (
-  id uuid primary key default uuid_generate_v4(),
+  id uuid primary key default gen_random_uuid(),
   user_id uuid references public.profiles on delete cascade not null unique,
   permissions text[] not null default '{}',
   created_at timestamptz not null default now(),
@@ -267,7 +267,7 @@ create table public.staff_permissions (
 
 -- ---- Activity Log ----
 create table public.activity_log (
-  id uuid primary key default uuid_generate_v4(),
+  id uuid primary key default gen_random_uuid(),
   user_id uuid references public.profiles on delete set null,
   action text not null,
   entity_type text,
@@ -278,7 +278,7 @@ create table public.activity_log (
 
 -- ---- Newsletter Subscribers ----
 create table public.newsletter_subscribers (
-  id uuid primary key default uuid_generate_v4(),
+  id uuid primary key default gen_random_uuid(),
   email text not null unique,
   user_id uuid references public.profiles on delete set null,
   is_active boolean not null default true,
@@ -288,7 +288,7 @@ create table public.newsletter_subscribers (
 
 -- ---- Notifications ----
 create table public.notifications (
-  id uuid primary key default uuid_generate_v4(),
+  id uuid primary key default gen_random_uuid(),
   user_id uuid references public.profiles on delete cascade not null,
   type text not null,
   title text not null,

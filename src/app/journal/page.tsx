@@ -62,7 +62,7 @@ export default async function JournalPage() {
                                     <div className={styles.postMeta}>
                                         <span className={styles.postAuthor}>
                                             <User size={12} />
-                                            {(post.profiles as { full_name: string | null } | null)?.full_name || 'Wizard Of Light'}
+                                            {((post.profiles as unknown as { full_name: string | null }[])?.[0]?.full_name) || 'Wizard Of Light'}
                                         </span>
                                         <span className={styles.postAuthor}>
                                             <Calendar size={12} />
