@@ -15,7 +15,22 @@ export default async function AccountPage() {
 
     return (
         <>
-            <h2 className={styles.contentTitle}>Profile</h2>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                <h2 className={styles.contentTitle}>Profile</h2>
+                {profile?.role === 'owner' && (
+                    <a href="/admin" style={{
+                        padding: '0.5rem 1rem',
+                        backgroundColor: 'var(--color-accent)',
+                        color: 'var(--color-bg)',
+                        borderRadius: '4px',
+                        textDecoration: 'none',
+                        fontSize: '0.875rem',
+                        fontWeight: '600'
+                    }}>
+                        Admin Dashboard
+                    </a>
+                )}
+            </div>
             <form className={styles.profileForm}>
                 <div className={styles.formGroup}>
                     <label htmlFor="profile-name">Full Name</label>
