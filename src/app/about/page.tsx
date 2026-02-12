@@ -30,8 +30,22 @@ export default function AboutPage() {
             <section className={styles.storySection}>
                 <div className="container">
                     <div className={styles.storyGrid}>
-                        <div className={styles.storyImageWrapper}>
-                            <Scissors size={80} className={styles.storyImagePlaceholder} />
+                        <div className={styles.aboutImageContainer}>
+                            {/* Placeholder for Bryan's picture */}
+                            <div className={styles.aboutImagePlaceholder}>
+                                <div style={{
+                                    width: '100%',
+                                    height: '100%',
+                                    background: 'var(--color-bg-elevated)',
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    justifyContent: 'center',
+                                    borderRadius: 'var(--radius-md)',
+                                    border: '1px solid var(--color-border)'
+                                }}>
+                                    <span style={{ color: 'var(--color-text-muted)' }}>Bryan's Photo</span>
+                                </div>
+                            </div>
                         </div>
                         <div className={styles.storyContent}>
                             <h2>

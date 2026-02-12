@@ -78,9 +78,8 @@ export default async function ShopPage({ searchParams }: ShopPageProps) {
         );
         const hasMultiplePrices = variants.length > 1 &&
             new Set(variants.map((v: { price: number }) => v.price)).size > 1;
-        const primaryImage = (product.product_images || []).find(
-            (img: { is_primary: boolean }) => img.is_primary
-        );
+        const images = product.product_images || [];
+        const primaryImage = images.find((img: { is_primary: boolean }) => img.is_primary) || images[0];
 
         return {
             ...product,

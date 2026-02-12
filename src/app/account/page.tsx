@@ -19,13 +19,18 @@ export default async function AccountPage() {
                 <h2 className={styles.contentTitle}>Profile</h2>
                 {profile?.role === 'owner' && (
                     <a href="/admin" style={{
-                        padding: '0.5rem 1rem',
+                        padding: '0.75rem 1.5rem',
                         backgroundColor: 'var(--color-accent)',
                         color: 'var(--color-bg)',
-                        borderRadius: '4px',
+                        borderRadius: 'var(--radius-md)',
                         textDecoration: 'none',
-                        fontSize: '0.875rem',
-                        fontWeight: '600'
+                        fontSize: '0.9rem',
+                        fontWeight: '600',
+                        display: 'inline-flex',
+                        alignItems: 'center',
+                        gap: '0.5rem',
+                        boxShadow: 'var(--shadow-sm)',
+                        transition: 'transform 0.2s',
                     }}>
                         Admin Dashboard
                     </a>

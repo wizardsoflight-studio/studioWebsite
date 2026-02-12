@@ -50,6 +50,9 @@ export default function Footer() {
                 <p className={styles.copyright}>
                     © {currentYear} Wizard Of Light. All rights reserved.
                 </p>
+                <p className={styles.copyright} style={{ marginTop: '0.5rem', fontSize: '0.75rem', opacity: 0.7 }}>
+                    Designed by <a href="https://lumenworks.app" target="_blank" rel="noopener noreferrer" style={{ color: 'inherit', textDecoration: 'underline' }}>LumenWorks LLC NE</a>
+                </p>
                 <div className={styles.socials}>
                     {/* Social links will be added when URLs are provided */}
                 </div>

@@ -22,11 +22,19 @@ export default function ContactPage() {
                     {/* Contact Form */}
                     <div className={styles.formSection}>
                         <h2>Send a Message</h2>
-                        <form>
+                        <form
+                            name="contact"
+                            method="POST"
+                            data-netlify="true"
+                            action="/contact?success=true"
+                        >
+                            <input type="hidden" name="form-name" value="contact" />
+
                             <div className={styles.formGroup}>
                                 <label htmlFor="contact-name">Name</label>
                                 <input
                                     id="contact-name"
+                                    name="name"
                                     type="text"
                                     className={styles.formInput}
                                     placeholder="Your name"
@@ -38,6 +46,7 @@ export default function ContactPage() {
                                 <label htmlFor="contact-email">Email</label>
                                 <input
                                     id="contact-email"
+                                    name="email"
                                     type="email"
                                     className={styles.formInput}
                                     placeholder="you@example.com"
@@ -49,6 +58,7 @@ export default function ContactPage() {
                                 <label htmlFor="contact-subject">Subject</label>
                                 <select
                                     id="contact-subject"
+                                    name="subject"
                                     className={`${styles.formInput} ${styles.formSelect}`}
                                     required
                                 >
@@ -65,6 +75,7 @@ export default function ContactPage() {
                                 <label htmlFor="contact-message">Message</label>
                                 <textarea
                                     id="contact-message"
+                                    name="message"
                                     className={`${styles.formInput} ${styles.formTextarea}`}
                                     placeholder="Tell us about your project, question, or idea..."
                                     required
