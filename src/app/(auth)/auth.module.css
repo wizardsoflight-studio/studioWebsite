@@ -1,36 +1,69 @@
-.authPage {
+/* ---- Login Page Layout ---- */
+.loginPage {
     min-height: calc(100vh - var(--header-height));
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.loginHero {
     display: flex;
     align-items: center;
     justify-content: center;
-    padding: var(--space-3xl) var(--space-lg);
-}
-
-.authCard {
-    width: 100%;
-    max-width: 440px;
-    background: var(--color-bg-card);
-    border: 1px solid var(--color-border);
-    border-radius: var(--radius-xl);
     padding: var(--space-3xl);
+    background: linear-gradient(135deg, rgba(254, 96, 47, 0.1) 0%, rgba(254, 96, 47, 0.02) 100%);
+    border-right: 1px solid var(--color-border);
 }
 
-.authHeader {
+.loginHeroContent {
     text-align: center;
+    max-width: 400px;
+}
+
+.heroIcon {
+    width: 64px;
+    height: 64px;
+    color: var(--color-accent-primary);
+    margin-bottom: var(--space-lg);
+}
+
+.heroTitle {
+    font-family: var(--font-display);
+    font-size: var(--text-4xl);
+    color: var(--color-text-primary);
+    margin-bottom: var(--space-md);
+}
+
+.heroSubtitle {
+    font-family: var(--font-body);
+    font-size: var(--text-base);
+    color: var(--color-text-secondary);
+    line-height: 1.6;
+}
+
+.loginCard {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    padding: var(--space-3xl);
+    background: var(--color-bg-card);
+}
+
+.cardHeader {
     margin-bottom: var(--space-2xl);
 }
 
-.authLogo {
-    font-family: var(--font-display);
-    font-size: var(--text-3xl);
+.cardTitle {
+    font-family: var(--font-subtitle);
+    font-size: var(--text-2xl);
     color: var(--color-text-primary);
-    margin-bottom: var(--space-sm);
+    margin-bottom: var(--space-xs);
 }
 
-.authTitle {
-    font-family: var(--font-subtitle);
-    font-size: var(--text-xl);
-    color: var(--color-text-secondary);
+.cardSubtitle {
+    font-size: var(--text-sm);
+    color: var(--color-text-muted);
 }
 
 /* ---- Social Buttons ---- */
@@ -50,7 +83,7 @@
     padding: var(--space-md);
     border: 1px solid var(--color-border);
     border-radius: var(--radius-md);
-    background: transparent;
+    background: var(--color-bg-primary);
     color: var(--color-text-primary);
     font-family: var(--font-body);
     font-size: var(--text-sm);
@@ -62,14 +95,11 @@
 .socialBtn:hover {
     border-color: var(--color-accent-primary);
     background: rgba(254, 96, 47, 0.05);
+    transform: translateY(-1px);
 }
 
 .socialIcon {
-    width: 20px;
-    height: 20px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
+    flex-shrink: 0;
 }
 
 /* ---- Divider ---- */
@@ -92,46 +122,51 @@
     font-size: var(--text-xs);
     color: var(--color-text-muted);
     text-transform: uppercase;
-    letter-spacing: 0.1em;
+    letter-spacing: 0.05em;
 }
 
-/* ---- Form ---- */
-.formGroup {
+/* ---- Input Fields ---- */
+.inputGroup {
     margin-bottom: var(--space-lg);
 }
 
-.formGroup label {
-    display: block;
+.inputLabel {
+    display: flex;
+    align-items: center;
+    gap: var(--space-xs);
     font-size: var(--text-sm);
     color: var(--color-text-secondary);
     margin-bottom: var(--space-xs);
+    font-weight: var(--weight-medium);
 }
 
-.formInput {
+.inputField {
     width: 100%;
     padding: var(--space-md);
+    padding-left: var(--space-md);
     border: 1px solid var(--color-border);
     border-radius: var(--radius-md);
     background: var(--color-bg-primary);
     color: var(--color-text-primary);
     font-family: var(--font-body);
     font-size: var(--text-base);
-    transition: border-color var(--transition-fast);
+    transition: all var(--transition-fast);
 }
 
-.formInput:focus {
+.inputField:focus {
     outline: none;
     border-color: var(--color-accent-primary);
+    box-shadow: 0 0 0 3px rgba(254, 96, 47, 0.1);
 }
 
-.formInput::placeholder {
+.inputField::placeholder {
     color: var(--color-text-muted);
 }
 
+/* ---- Form Row ---- */
 .formRow {
     display: flex;
-    justify-content: space-between;
-    align-items: center;
+    justify-content: flex-end;
     margin-bottom: var(--space-xl);
 }
 
@@ -140,13 +175,20 @@
     color: var(--color-accent-primary);
     text-decoration: none;
     transition: opacity var(--transition-fast);
+    font-weight: var(--weight-medium);
 }
 
 .forgotLink:hover {
     opacity: 0.8;
+    text-decoration: underline;
 }
 
+/* ---- Submit Button ---- */
 .submitBtn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--space-sm);
     width: 100%;
     padding: var(--space-md);
     background: var(--color-cta);
@@ -162,7 +204,7 @@
     transition: all var(--transition-base);
 }
 
-.submitBtn:hover {
+.submitBtn:hover:not(:disabled) {
     background: var(--color-cta-hover);
     box-shadow: var(--shadow-glow-orange);
     transform: translateY(-2px);
@@ -175,27 +217,45 @@
     box-shadow: none;
 }
 
+.loadingSpinner {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-xs);
+}
+
 /* ---- Footer ---- */
 .authFooter {
     text-align: center;
-    margin-top: var(--space-xl);
+    margin-top: var(--space-2xl);
+    padding-top: var(--space-xl);
+    border-top: 1px solid var(--color-border);
+}
+
+.authFooter p {
     font-size: var(--text-sm);
     color: var(--color-text-muted);
+    margin-bottom: var(--space-sm);
 }
 
-.authFooter a {
+.signupLink {
+    display: inline-block;
     color: var(--color-accent-primary);
+    font-size: var(--text-sm);
+    font-weight: var(--weight-semibold);
     text-decoration: none;
-    font-weight: var(--weight-medium);
-    transition: opacity var(--transition-fast);
+    transition: all var(--transition-fast);
 }
 
-.authFooter a:hover {
+.signupLink:hover {
     opacity: 0.8;
+    text-decoration: underline;
 }
 
-/* ---- Error ---- */
+/* ---- Error Message ---- */
 .errorMsg {
+    display: flex;
+    align-items: center;
+    gap: var(--space-sm);
     background: rgba(239, 68, 68, 0.1);
     border: 1px solid rgba(239, 68, 68, 0.3);
     border-radius: var(--radius-md);
@@ -205,6 +265,11 @@
     color: var(--color-error);
 }
 
+.errorIcon {
+    flex-shrink: 0;
+}
+
+/* ---- Success Message ---- */
 .successMsg {
     background: rgba(34, 197, 94, 0.1);
     border: 1px solid rgba(34, 197, 94, 0.3);
@@ -213,4 +278,32 @@
     margin-bottom: var(--space-lg);
     font-size: var(--text-sm);
     color: var(--color-success);
+}
+
+/* ---- Mobile Responsive ---- */
+@media (max-width: 768px) {
+    .loginPage {
+        grid-template-columns: 1fr;
+        max-width: 480px;
+        padding: var(--space-lg);
+    }
+
+    .loginHero {
+        border-right: none;
+        border-bottom: 1px solid var(--color-border);
+        padding: var(--space-2xl);
+    }
+
+    .heroIcon {
+        width: 48px;
+        height: 48px;
+    }
+
+    .heroTitle {
+        font-size: var(--text-2xl);
+    }
+
+    .loginCard {
+        padding: var(--space-xl);
+    }
 }

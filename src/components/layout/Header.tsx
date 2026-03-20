@@ -3,18 +3,22 @@
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { ShoppingBag, Heart, User, Menu, X } from 'lucide-react';
+import { ShoppingBag, Heart, User, Menu, X, LogOut, ChevronDown } from 'lucide-react';
 import { useCart } from '@/context/CartContext';
+import { useAuth } from '@/hooks/useAuth';
 import styles from './Header.module.css';
 
 export default function Header() {
     const { itemCount, openCart } = useCart();
+    const { user, signOut } = useAuth();
     const [isMenuOpen, setIsMenuOpen] = useState(false);
+    const [showAccountDropdown, setShowAccountDropdown] = useState(false);
     const pathname = usePathname();
 
     // Close mobile menu on route change
     useEffect(() => {
         setIsMenuOpen(false);
+        setShowAccountDropdown(false);
     }, [pathname]);
 
     // Prevent body scroll when menu is open
@@ -29,7 +33,25 @@ export default function Header() {
         };
     }, [isMenuOpen]);
 
+    // Close dropdown when clicking outside
+    useEffect(() => {
+        const handleClickOutside = (event: MouseEvent) => {
+            const target = event.target as HTMLElement;
+            if (showAccountDropdown && !target.closest(`.${styles.accountWrapper}`)) {
+                setShowAccountDropdown(false);
+            }
+        };
+        document.addEventListener('click', handleClickOutside);
+        return () => document.removeEventListener('click', handleClickOutside);
+    }, [showAccountDropdown]);
+
     const closeMenu = () => setIsMenuOpen(false);
+
+    const handleSignOut = async () => {
+        await signOut();
+        setShowAccountDropdown(false);
+        window.location.href = '/';
+    };
 
     return (
         <>
@@ -70,9 +92,68 @@ export default function Header() {
                             <span className={styles.cartBadge}>{itemCount > 99 ? '99+' : itemCount}</span>
                         )}
                     </button>
-                    <Link href="/account" className={styles.iconBtn} aria-label="Account">
-                        <User size={20} />
-                    </Link>
+
+                    {user ? (
+                        <div className={styles.accountWrapper}>
+                            <button
+                                className={styles.accountBtn}
+                                onClick={() => setShowAccountDropdown(prev => !prev)}
+                                aria-expanded={showAccountDropdown}
+                                aria-label="Account menu"
+                            >
+                                <div className={styles.accountAvatar}>
+                                    {user.email?.charAt(0).toUpperCase() || 'U'}
+                                </div>
+                                <span className={styles.accountName}>
+                                    {user.user_metadata?.full_name || user.email?.split('@')[0] || 'Account'}
+                                </span>
+                                <ChevronDown size={16} className={`${styles.accountChevron} ${showAccountDropdown ? styles.chevronUp : ''}`} />
+                            </button>
+
+                            {showAccountDropdown && (
+                                <div className={styles.accountDropdown}>
+                                    <Link
+                                        href="/account"
+                                        className={styles.dropdownItem}
+                                        onClick={() => setShowAccountDropdown(false)}
+                                    >
+                                        <User size={18} />
+                                        My Account
+                                    </Link>
+                                    <Link
+                                        href="/account/orders"
+                                        className={styles.dropdownItem}
+                                        onClick={() => setShowAccountDropdown(false)}
+                                    >
+                                        <ShoppingBag size={18} />
+                                        My Orders
+                                    </Link>
+                                    <Link
+                                        href="/account/wishlist"
+                                        className={styles.dropdownItem}
+                                        onClick={() => setShowAccountDropdown(false)}
+                                    >
+                                        <Heart size={18} />
+                                        Wishlist
+                                    </Link>
+                                    <div className={styles.dropdownDivider} />
+                                    <button
+                                        className={styles.dropdownItem}
+                                        onClick={handleSignOut}
+                                    >
+                                        <LogOut size={18} />
+                                        Sign Out
+                                    </button>
+                                </div>
+                            )}
+                        </div>
+                    ) : (
+                        <Link href="/login" className={styles.loginBtn}>
+                            <User size={20} />
+                            <span>Sign In</span>
+                        </Link>
+                    )}
+
                     <button
                         className={`${styles.iconBtn} ${styles.mobileMenuBtn}`}
                         aria-label={isMenuOpen ? 'Close Menu' : 'Open Menu'}

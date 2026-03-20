@@ -105,6 +105,141 @@
     font-weight: var(--weight-bold);
 }
 
+/* ---- Login Button ---- */
+.loginBtn {
+    display: flex;
+    align-items: center;
+    gap: var(--space-xs);
+    padding: var(--space-sm) var(--space-md);
+    background: var(--color-cta);
+    color: var(--color-white);
+    border-radius: var(--radius-md);
+    text-decoration: none;
+    font-family: var(--font-body);
+    font-size: var(--text-sm);
+    font-weight: var(--weight-medium);
+    transition: all var(--transition-fast);
+    border: none;
+    cursor: pointer;
+}
+
+.loginBtn:hover {
+    background: var(--color-cta-hover);
+    box-shadow: var(--shadow-glow-orange);
+    transform: translateY(-1px);
+}
+
+/* ---- Account Dropdown ---- */
+.accountWrapper {
+    position: relative;
+}
+
+.accountBtn {
+    display: flex;
+    align-items: center;
+    gap: var(--space-xs);
+    padding: var(--space-xs) var(--space-sm);
+    padding-right: var(--space-xs);
+    background: var(--color-bg-elevated);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-full);
+    cursor: pointer;
+    transition: all var(--transition-fast);
+}
+
+.accountBtn:hover {
+    border-color: var(--color-accent-primary);
+    background: rgba(254, 96, 47, 0.1);
+}
+
+.accountAvatar {
+    width: 32px;
+    height: 32px;
+    border-radius: var(--radius-full);
+    background: var(--color-accent-primary);
+    color: var(--color-white);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: var(--text-sm);
+    font-weight: var(--weight-semibold);
+    text-transform: uppercase;
+}
+
+.accountName {
+    font-family: var(--font-body);
+    font-size: var(--text-sm);
+    color: var(--color-text-primary);
+    font-weight: var(--weight-medium);
+    max-width: 120px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.accountChevron {
+    color: var(--color-text-muted);
+    transition: transform var(--transition-fast);
+}
+
+.chevronUp {
+    transform: rotate(-180deg);
+}
+
+.accountDropdown {
+    position: absolute;
+    top: calc(100% + var(--space-sm));
+    right: 0;
+    width: 220px;
+    background: var(--color-bg-card);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-lg);
+    padding: var(--space-sm);
+    z-index: var(--z-dropdown);
+    animation: slideDown 0.2s ease;
+}
+
+@keyframes slideDown {
+    from {
+        opacity: 0;
+        transform: translateY(-8px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.dropdownItem {
+    display: flex;
+    align-items: center;
+    gap: var(--space-sm);
+    width: 100%;
+    padding: var(--space-sm) var(--space-md);
+    color: var(--color-text-secondary);
+    font-family: var(--font-body);
+    font-size: var(--text-sm);
+    text-decoration: none;
+    background: transparent;
+    border: none;
+    border-radius: var(--radius-md);
+    cursor: pointer;
+    transition: all var(--transition-fast);
+    text-align: left;
+}
+
+.dropdownItem:hover {
+    color: var(--color-text-primary);
+    background: rgba(254, 96, 47, 0.08);
+}
+
+.dropdownDivider {
+    height: 1px;
+    background: var(--color-border);
+    margin: var(--space-xs) 0;
+}
+
 .mobileMenuBtn {
     display: none;
     color: var(--color-text-primary);

@@ -1,133 +1,179 @@
-import { DollarSign, ShoppingCart, Package, Users } from 'lucide-react';
 import { createClient } from '@/lib/supabase/server';
-import { formatPrice, formatDate } from '@/lib/utils';
+import { redirect } from 'next/navigation';
+import Link from 'next/link';
+import { Users, Package, ShoppingCart, TrendingUp, Shield, UserCog } from 'lucide-react';
 import styles from './admin.module.css';
-import type { Metadata } from 'next';
 
-export const metadata: Metadata = {
-    title: 'Admin Dashboard',
-};
-
-export default async function AdminDashboardPage() {
+export default async function AdminDashboard() {
     const supabase = await createClient();
+    
+    const {
+        data: { user },
+    } = await supabase.auth.getUser();
 
-    // Fetch stats
-    const [
-        { count: totalOrders },
-        { count: totalProducts },
-        { count: totalCustomers },
-        { data: recentOrders },
-    ] = await Promise.all([
-        supabase.from('orders').select('*', { count: 'exact', head: true }),
-        supabase.from('products').select('*', { count: 'exact', head: true }),
-        supabase.from('profiles').select('*', { count: 'exact', head: true }).eq('role', 'customer'),
-        supabase
-            .from('orders')
-            .select('id, order_number, status, total, created_at, profiles!inner(full_name, email)')
-            .order('created_at', { ascending: false })
-            .limit(10),
-    ]);
+    if (!user) {
+        redirect('/login');
+    }
 
-    // Calculate revenue
-    const { data: paidOrders } = await supabase
-        .from('orders')
-        .select('total')
-        .in('status', ['paid', 'processing', 'shipped', 'delivered']);
+    const { data: profile } = await supabase
+        .from('profiles')
+        .select('*')
+        .eq('id', user.id)
+        .single();
 
-    const totalRevenue = (paidOrders || []).reduce(
-        (sum, order) => sum + (order.total || 0),
-        0
-    );
+    // Redirect non-admins
+    if (profile?.role !== 'admin') {
+        redirect('/account');
+    }
 
-    const statusStyles: Record<string, string> = {
-        pending: styles.statusPending,
-        paid: styles.statusPaid,
-        processing: styles.statusProcessing,
-        shipped: styles.statusShipped,
-        delivered: styles.statusDelivered,
-        cancelled: styles.statusCancelled,
-    };
+    // Fetch dashboard stats
+    const { data: stats } = await supabase
+        .from('admin_dashboard_stats')
+        .select('*')
+        .single();
+
+    // Fetch recent users
+    const { data: recentUsers } = await supabase
+        .from('profiles')
+        .select('id, email, full_name, role, created_at')
+        .order('created_at', { ascending: false })
+        .limit(10);
+
+    // Fetch all users with roles for management
+    const { data: allUsers } = await supabase
+        .from('profiles')
+        .select('id, email, full_name, role, created_at')
+        .order('role', { ascending: true })
+        .order('created_at', { ascending: false });
 
     return (
-        <>
-            <div className={styles.pageHeader}>
-                <h1 className={styles.pageTitle}>Dashboard</h1>
+        <div className={styles.adminDashboard}>
+            <div className={styles.dashboardHeader}>
+                <div>
+                    <h1 className={styles.dashboardTitle}>Admin Dashboard</h1>
+                    <p className={styles.dashboardSubtitle}>Manage users, roles, and view statistics</p>
+                </div>
+                <div className={styles.adminBadge}>
+                    <Shield size={18} />
+                    <span>Admin Access</span>
+                </div>
             </div>
 
             {/* Stats Grid */}
             <div className={styles.statsGrid}>
                 <div className={styles.statCard}>
-                    <div className={styles.statLabel}>
-                        <DollarSign size={14} />
-                        Total Revenue
+                    <div className={styles.statIcon}>
+                        <Users size={24} />
                     </div>
-                    <div className={styles.statValue}>{formatPrice(totalRevenue)}</div>
+                    <div className={styles.statContent}>
+                        <div className={styles.statValue}>{stats?.total_users || 0}</div>
+                        <div className={styles.statLabel}>Total Users</div>
+                    </div>
                 </div>
+
                 <div className={styles.statCard}>
-                    <div className={styles.statLabel}>
-                        <ShoppingCart size={14} />
-                        Orders
+                    <div className={styles.statIcon}>
+                        <Shield size={24} />
                     </div>
-                    <div className={styles.statValue}>{totalOrders || 0}</div>
+                    <div className={styles.statContent}>
+                        <div className={styles.statValue}>{stats?.total_admins || 0}</div>
+                        <div className={styles.statLabel}>Admins</div>
+                    </div>
                 </div>
+
                 <div className={styles.statCard}>
-                    <div className={styles.statLabel}>
-                        <Package size={14} />
-                        Products
+                    <div className={styles.statIcon}>
+                        <UserCog size={24} />
                     </div>
-                    <div className={styles.statValue}>{totalProducts || 0}</div>
+                    <div className={styles.statContent}>
+                        <div className={styles.statValue}>{stats?.total_staff || 0}</div>
+                        <div className={styles.statLabel}>Staff Members</div>
+                    </div>
                 </div>
+
                 <div className={styles.statCard}>
-                    <div className={styles.statLabel}>
-                        <Users size={14} />
-                        Customers
+                    <div className={styles.statIcon}>
+                        <TrendingUp size={24} />
                     </div>
-                    <div className={styles.statValue}>{totalCustomers || 0}</div>
+                    <div className={styles.statContent}>
+                        <div className={styles.statValue}>{stats?.active_users_7d || 0}</div>
+                        <div className={styles.statLabel}>Active (7 days)</div>
+                    </div>
                 </div>
             </div>
 
-            {/* Recent Orders */}
-            <h2 style={{ fontFamily: 'var(--font-subtitle)', fontSize: 'var(--text-xl)', marginBottom: 'var(--space-lg)' }}>
-                Recent Orders
-            </h2>
-
-            {recentOrders && recentOrders.length > 0 ? (
-                <table className={styles.dataTable}>
-                    <thead>
-                        <tr>
-                            <th>Order</th>
-                            <th>Customer</th>
-                            <th>Status</th>
-                            <th>Total</th>
-                            <th>Date</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {recentOrders.map((order) => {
-                            const profile = order.profiles as unknown as { full_name: string; email: string };
-                            return (
-                                <tr key={order.id}>
-                                    <td>#{order.order_number || order.id.slice(0, 8)}</td>
-                                    <td>{profile?.full_name || profile?.email || 'Guest'}</td>
-                                    <td>
-                                        <span className={`${styles.statusBadge} ${statusStyles[order.status] || ''}`}>
-                                            {order.status}
-                                        </span>
-                                    </td>
-                                    <td>{formatPrice(order.total)}</td>
-                                    <td>{formatDate(order.created_at)}</td>
-                                </tr>
-                            );
-                        })}
-                    </tbody>
-                </table>
-            ) : (
-                <div className={styles.emptyState}>
-                    <ShoppingCart size={48} />
-                    <h3>No orders yet</h3>
-                    <p>Orders will appear here once customers start purchasing.</p>
+            {/* User Management */}
+            <div className={styles.section}>
+                <h2 className={styles.sectionTitle}>User Management</h2>
+                <div className={styles.userTable}>
+                    <div className={styles.tableHeader}>
+                        <div className={styles.tableCol}>User</div>
+                        <div className={styles.tableCol}>Role</div>
+                        <div className={styles.tableCol}>Joined</div>
+                        <div className={styles.tableCol}>Actions</div>
+                    </div>
+                    {allUsers?.map((userProfile) => (
+                        <div key={userProfile.id} className={styles.tableRow}>
+                            <div className={styles.tableCell}>
+                                <div className={styles.userName}>
+                                    {userProfile.full_name || '—'}
+                                </div>
+                                <div className={styles.userEmail}>{userProfile.email}</div>
+                            </div>
+                            <div className={styles.tableCell}>
+                                <span className={`${styles.roleBadge} ${styles[`${userProfile.role}Role`]}`}>
+                                    {userProfile.role}
+                                </span>
+                            </div>
+                            <div className={styles.tableCell}>
+                                {new Date(userProfile.created_at).toLocaleDateString()}
+                            </div>
+                            <div className={styles.tableCell}>
+                                {profile.role === 'admin' && userProfile.id !== user.id && (
+                                    <div className={styles.actionButtons}>
+                                        {userProfile.role !== 'admin' && (
+                                            <form action="/admin/promote" method="POST" className={styles.inlineForm}>
+                                                <input type="hidden" name="userId" value={userProfile.id} />
+                                                <input type="hidden" name="role" value={userProfile.role === 'staff' ? 'admin' : 'staff'} />
+                                                <button type="submit" className={styles.promoteBtn}>
+                                                    {userProfile.role === 'staff' ? 'Promote to Admin' : 'Make Staff'}
+                                                </button>
+                                            </form>
+                                        )}
+                                        {userProfile.role !== 'customer' && (
+                                            <form action="/admin/demote" method="POST" className={styles.inlineForm}>
+                                                <input type="hidden" name="userId" value={userProfile.id} />
+                                                <button type="submit" className={styles.demoteBtn}>
+                                                    Remove Role
+                                                </button>
+                                            </form>
+                                        )}
+                                    </div>
+                                )}
+                            </div>
+                        </div>
+                    ))}
                 </div>
-            )}
-        </>
+            </div>
+
+            {/* Quick Actions */}
+            <div className={styles.section}>
+                <h2 className={styles.sectionTitle}>Quick Actions</h2>
+                <div className={styles.quickActions}>
+                    <Link href="/admin/products" className={styles.actionCard}>
+                        <Package size={24} />
+                        <span>Manage Products</span>
+                    </Link>
+                    <Link href="/admin/orders" className={styles.actionCard}>
+                        <ShoppingCart size={24} />
+                        <span>View Orders</span>
+                    </Link>
+                    <Link href="/admin/settings" className={styles.actionCard}>
+                        <UserCog size={24} />
+                        <span>Settings</span>
+                    </Link>
+                </div>
+            </div>
+        </div>
     );
 }

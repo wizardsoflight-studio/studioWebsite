@@ -1,4 +1,7 @@
 import { createClient } from '@/lib/supabase/server';
+import { redirect } from 'next/navigation';
+import Link from 'next/link';
+import { Shield, UserCog, Settings } from 'lucide-react';
 import styles from './account.module.css';
 
 export default async function AccountPage() {
@@ -7,35 +10,39 @@ export default async function AccountPage() {
         data: { user },
     } = await supabase.auth.getUser();
 
+    if (!user) {
+        redirect('/login');
+    }
+
     const { data: profile } = await supabase
         .from('profiles')
         .select('*')
-        .eq('id', user!.id)
+        .eq('id', user.id)
         .single();
+
+    const isAdmin = profile?.role === 'admin';
+    const isStaff = profile?.role === 'staff';
 
     return (
         <>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <div className={styles.pageHeader}>
                 <h2 className={styles.contentTitle}>Profile</h2>
-                {profile?.role === 'owner' && (
-                    <a href="/admin" style={{
-                        padding: '0.75rem 1.5rem',
-                        backgroundColor: 'var(--color-accent)',
-                        color: 'var(--color-bg)',
-                        borderRadius: 'var(--radius-md)',
-                        textDecoration: 'none',
-                        fontSize: '0.9rem',
-                        fontWeight: '600',
-                        display: 'inline-flex',
-                        alignItems: 'center',
-                        gap: '0.5rem',
-                        boxShadow: 'var(--shadow-sm)',
-                        transition: 'transform 0.2s',
-                    }}>
-                        Admin Dashboard
-                    </a>
-                )}
+                <div className={styles.adminLinks}>
+                    {isAdmin && (
+                        <Link href="/admin" className={styles.adminLink}>
+                            <Shield size={18} />
+                            <span>Admin Dashboard</span>
+                        </Link>
+                    )}
+                    {isStaff && !isAdmin && (
+                        <Link href="/admin/staff" className={styles.adminLink}>
+                            <UserCog size={18} />
+                            <span>Staff Dashboard</span>
+                        </Link>
+                    )}
+                </div>
             </div>
+
             <form className={styles.profileForm}>
                 <div className={styles.formGroup}>
                     <label htmlFor="profile-name">Full Name</label>
@@ -54,7 +61,7 @@ export default async function AccountPage() {
                         id="profile-email"
                         type="email"
                         className={styles.formInput}
-                        defaultValue={profile?.email || user!.email || ''}
+                        defaultValue={profile?.email || user.email || ''}
                         disabled
                     />
                 </div>
@@ -67,6 +74,18 @@ export default async function AccountPage() {
                         className={styles.formInput}
                         defaultValue={profile?.phone || ''}
                         placeholder="(555) 123-4567"
+                    />
+                </div>
+
+                <div className={styles.formGroup}>
+                    <label htmlFor="profile-role">Account Type</label>
+                    <input
+                        id="profile-role"
+                        type="text"
+                        className={styles.formInput}
+                        value={profile?.role === 'admin' ? 'Administrator' : profile?.role === 'staff' ? 'Staff Member' : 'Customer'}
+                        disabled
+                        readOnly
                     />
                 </div>
 
