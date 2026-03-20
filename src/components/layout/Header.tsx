@@ -6,11 +6,12 @@ import { usePathname } from 'next/navigation';
 import { ShoppingBag, Heart, User, Menu, X, LogOut, ChevronDown, Shield } from 'lucide-react';
 import { useCart } from '@/context/CartContext';
 import { useAuth } from '@/hooks/useAuth';
+import { signOut } from '@/lib/actions/auth';
 import styles from './Header.module.css';
 
 export default function Header() {
     const { itemCount, openCart } = useCart();
-    const { user, role, signOut } = useAuth();
+    const { user, role } = useAuth();
     const [isMenuOpen, setIsMenuOpen] = useState(false);
     const [showAccountDropdown, setShowAccountDropdown] = useState(false);
     const pathname = usePathname();
@@ -46,13 +47,6 @@ export default function Header() {
     }, [showAccountDropdown]);
 
     const closeMenu = () => setIsMenuOpen(false);
-
-    const handleDropdownClick = (callback: () => void) => {
-        return (e: React.MouseEvent) => {
-            e.stopPropagation();
-            callback();
-        };
-    };
 
     return (
         <>
@@ -135,7 +129,7 @@ export default function Header() {
                                     <Link
                                         href="/account"
                                         className={styles.dropdownItem}
-                                        onClick={handleDropdownClick(() => setShowAccountDropdown(false))}
+                                        onClick={() => setShowAccountDropdown(false)}
                                     >
                                         <User size={18} />
                                         My Account
@@ -143,7 +137,7 @@ export default function Header() {
                                     <Link
                                         href="/account/orders"
                                         className={styles.dropdownItem}
-                                        onClick={handleDropdownClick(() => setShowAccountDropdown(false))}
+                                        onClick={() => setShowAccountDropdown(false)}
                                     >
                                         <ShoppingBag size={18} />
                                         My Orders
@@ -151,23 +145,22 @@ export default function Header() {
                                     <Link
                                         href="/account/wishlist"
                                         className={styles.dropdownItem}
-                                        onClick={handleDropdownClick(() => setShowAccountDropdown(false))}
+                                        onClick={() => setShowAccountDropdown(false)}
                                     >
                                         <Heart size={18} />
                                         Wishlist
                                     </Link>
                                     <div className={styles.dropdownDivider} />
-                                    <button
-                                        type="button"
-                                        className={styles.dropdownItem}
-                                        onClick={async () => {
-                                            setShowAccountDropdown(false);
-                                            await signOut();
-                                        }}
-                                    >
-                                        <LogOut size={18} />
-                                        Sign Out
-                                    </button>
+                                    <form action={signOut}>
+                                        <button
+                                            type="submit"
+                                            className={styles.dropdownItem}
+                                            onClick={() => setShowAccountDropdown(false)}
+                                        >
+                                            <LogOut size={18} />
+                                            Sign Out
+                                        </button>
+                                    </form>
                                 </div>
                             )}
                         </div>

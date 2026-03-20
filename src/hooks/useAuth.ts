@@ -82,20 +82,5 @@ export function useAuth() {
         };
     }, [getRole]);
 
-    const signOut = useCallback(async () => {
-        console.log('Signing out...');
-        // Sign out and clear all cookies
-        const { error } = await supabase.auth.signOut({ scope: 'global' });
-        if (error) {
-            console.error('Sign out error:', error);
-        } else {
-            console.log('Signed out successfully');
-        }
-        setUser(null);
-        setRole(null);
-        // Force reload to clear any cached state
-        window.location.replace('/');
-    }, []);
-
-    return { user, role, loading, signOut };
+    return { user, role, loading };
 }
