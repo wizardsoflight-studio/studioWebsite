@@ -48,9 +48,16 @@ export default function Header() {
     const closeMenu = () => setIsMenuOpen(false);
 
     const handleSignOut = async () => {
-        await signOut();
         setShowAccountDropdown(false);
+        await signOut();
         window.location.href = '/';
+    };
+
+    const handleDropdownClick = (callback: () => void) => {
+        return (e: React.MouseEvent) => {
+            e.stopPropagation();
+            callback();
+        };
     };
 
     return (
@@ -127,11 +134,14 @@ export default function Header() {
                             </button>
 
                             {showAccountDropdown && (
-                                <div className={styles.accountDropdown}>
+                                <div
+                                    className={styles.accountDropdown}
+                                    onClick={(e) => e.stopPropagation()}
+                                >
                                     <Link
                                         href="/account"
                                         className={styles.dropdownItem}
-                                        onClick={() => setShowAccountDropdown(false)}
+                                        onClick={handleDropdownClick(() => setShowAccountDropdown(false))}
                                     >
                                         <User size={18} />
                                         My Account
@@ -139,7 +149,7 @@ export default function Header() {
                                     <Link
                                         href="/account/orders"
                                         className={styles.dropdownItem}
-                                        onClick={() => setShowAccountDropdown(false)}
+                                        onClick={handleDropdownClick(() => setShowAccountDropdown(false))}
                                     >
                                         <ShoppingBag size={18} />
                                         My Orders
@@ -147,13 +157,14 @@ export default function Header() {
                                     <Link
                                         href="/account/wishlist"
                                         className={styles.dropdownItem}
-                                        onClick={() => setShowAccountDropdown(false)}
+                                        onClick={handleDropdownClick(() => setShowAccountDropdown(false))}
                                     >
                                         <Heart size={18} />
                                         Wishlist
                                     </Link>
                                     <div className={styles.dropdownDivider} />
                                     <button
+                                        type="button"
                                         className={styles.dropdownItem}
                                         onClick={handleSignOut}
                                     >
