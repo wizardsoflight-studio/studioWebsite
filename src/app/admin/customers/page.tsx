@@ -3,6 +3,7 @@ import { createClient, getAuthUser, getUserProfile } from '@/lib/supabase/server
 import { formatDate } from '@/lib/utils';
 import styles from '../admin.module.css';
 import { promoteUser, demoteUser } from './actions';
+import { toggleUserNsfw } from '@/app/shop/nsfw/actions';
 import type { Metadata } from 'next';
 
 export const metadata: Metadata = {
@@ -37,6 +38,7 @@ export default async function AdminCustomersPage() {
                             <th>Name</th>
                             <th>Email</th>
                             <th>Role</th>
+                            <th>18+</th>
                             <th>Joined</th>
                             {isCurrentAdmin && <th>Actions</th>}
                         </tr>
@@ -54,6 +56,11 @@ export default async function AdminCustomersPage() {
                                     </span>
                                 </td>
                                 <td>{formatDate(u.created_at)}</td>
+                                <td>
+                                    <span style={{ fontSize: 'var(--text-xs)', color: u.nsfw_enabled ? 'var(--color-accent-secondary)' : 'var(--color-text-muted)' }}>
+                                        {u.nsfw_enabled ? '✓ Enabled' : '—'}
+                                    </span>
+                                </td>
                                 {isCurrentAdmin && (
                                     <td>
                                         <div className={styles.actionButtons}>
@@ -92,6 +99,12 @@ export default async function AdminCustomersPage() {
                                                             <button type="submit" className={styles.demoteBtn}>Revoke Admin</button>
                                                         </form>
                                                     )}
+                                                    {/* 18+ Access Toggle */}
+                                                    <form action={toggleUserNsfw.bind(null, u.id, !u.nsfw_enabled)} className={styles.inlineForm}>
+                                                        <button type="submit" className={u.nsfw_enabled ? styles.demoteBtn : styles.promoteBtn} style={{ fontSize: '0.7rem' }}>
+                                                            {u.nsfw_enabled ? 'Revoke 18+' : 'Enable 18+'}
+                                                        </button>
+                                                    </form>
                                                 </>
                                             )}
                                         </div>

@@ -1,4 +1,5 @@
 import { createServiceClient } from '@/lib/supabase/service';
+import { createClient } from '@/lib/supabase/server';
 import NsfwShopClient from './NsfwShopClient';
 import type { Metadata } from 'next';
 
@@ -8,8 +9,20 @@ export const metadata: Metadata = {
 };
 
 export default async function NsfwShopPage() {
-    // Use service role to bypass RLS — age verification happens client-side
     const supabase = createServiceClient();
+    const authClient = await createClient();
+
+    // Check if logged-in user has already verified their age via their profile
+    let userNsfwEnabled = false;
+    const { data: { user } } = await authClient.auth.getUser();
+    if (user) {
+        const { data: profile } = await authClient
+            .from('profiles')
+            .select('nsfw_enabled')
+            .eq('id', user.id)
+            .single();
+        userNsfwEnabled = profile?.nsfw_enabled ?? false;
+    }
 
     const { data: products } = await supabase
         .from('products')
@@ -50,5 +63,6 @@ export default async function NsfwShopPage() {
         };
     });
 
-    return <NsfwShopClient products={productsWithPricing} />;
+    return <NsfwShopClient products={productsWithPricing} userNsfwEnabled={userNsfwEnabled} />;
 }
+

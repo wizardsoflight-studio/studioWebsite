@@ -65,7 +65,8 @@ export default function LoginPage() {
                     <p className={styles.cardSubtitle}>Enter your credentials to continue</p>
                 </div>
 
-                {/* Social Login */}
+                {/* Social Login Temporarily Disabled */}
+                {/*
                 <div className={styles.socialButtons}>
                     <button
                         className={styles.socialBtn}
@@ -95,6 +96,7 @@ export default function LoginPage() {
                 <div className={styles.divider}>
                     <span className={styles.dividerText}>or sign in with email</span>
                 </div>
+                */}
 
                 {error && (
                     <div className={styles.errorMsg}>

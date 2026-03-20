@@ -21,10 +21,11 @@ interface NsfwProduct {
     primaryImage: { url: string; alt: string | null } | null;
 }
 
-export default function NsfwShopClient({ products }: { products: NsfwProduct[] }) {
-    const [ageVerified, setAgeVerified] = useState(false);
+export default function NsfwShopClient({ products, userNsfwEnabled = false }: { products: NsfwProduct[]; userNsfwEnabled?: boolean }) {
+    const [ageVerified, setAgeVerified] = useState(userNsfwEnabled);
 
     useEffect(() => {
+        if (userNsfwEnabled) return; // Already verified via profile
         setAgeVerified(localStorage.getItem('wol_age_verified') === 'true');
 
         const handleStorage = () => {
@@ -44,11 +45,11 @@ export default function NsfwShopClient({ products }: { products: NsfwProduct[] }
             window.removeEventListener('storage', handleStorage);
             clearInterval(interval);
         };
-    }, [ageVerified]);
+    }, [ageVerified, userNsfwEnabled]);
 
     return (
         <>
-            <AgeGate required={!ageVerified} />
+            <AgeGate required={!ageVerified} profileVerified={userNsfwEnabled} />
 
             <div className={styles.shopPage}>
                 <div className="container">

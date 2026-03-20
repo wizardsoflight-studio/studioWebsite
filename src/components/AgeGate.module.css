@@ -94,3 +94,35 @@
     font-size: var(--text-xs);
     color: var(--color-text-muted);
 }
+
+/* ---- DOB Form ---- */
+.dobForm {
+    width: 100%;
+}
+
+.dobInput {
+    width: 100%;
+    padding: var(--space-md);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+    background: var(--color-bg-primary);
+    color: var(--color-text-primary);
+    font-family: var(--font-body);
+    font-size: var(--text-base);
+    text-align: center;
+    transition: border-color var(--transition-fast);
+    box-sizing: border-box;
+}
+
+.dobInput:focus {
+    outline: none;
+    border-color: var(--color-accent-secondary);
+    box-shadow: 0 0 0 3px rgba(130, 2, 99, 0.15);
+}
+
+.dobError {
+    margin-top: var(--space-sm);
+    font-size: var(--text-sm);
+    color: var(--color-error);
+    text-align: center;
+}
