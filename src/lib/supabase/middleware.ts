@@ -29,39 +29,52 @@ export async function updateSession(request: NextRequest) {
         }
     );
 
-    // Refresh session - important for Server Components
+    // Get session from cookie - don't call getUser() on every request
+    // Let Server Components handle session validation
     const {
-        data: { user },
-    } = await supabase.auth.getUser();
+        data: { session },
+    } = await supabase.auth.getSession();
 
     // Protect /account routes
-    if (request.nextUrl.pathname.startsWith('/account') && !user) {
+    if (request.nextUrl.pathname.startsWith('/account') && !session) {
         const url = request.nextUrl.clone();
         url.pathname = '/login';
         url.searchParams.set('redirect', request.nextUrl.pathname);
         return NextResponse.redirect(url);
     }
 
-    // Protect /admin routes
+    // Protect /admin routes - check for admin or staff role
     if (request.nextUrl.pathname.startsWith('/admin')) {
-        if (!user) {
+        if (!session?.user) {
             const url = request.nextUrl.clone();
             url.pathname = '/login';
             url.searchParams.set('redirect', request.nextUrl.pathname);
             return NextResponse.redirect(url);
         }
 
-        // Check for admin role - query the profiles table
+        // Only check role for /admin routes (not /admin/staff)
+        // Staff can access /admin/staff, admins can access all /admin/*
         const { data: profile } = await supabase
             .from('profiles')
             .select('role')
-            .eq('id', user.id)
+            .eq('id', session.user.id)
             .single();
 
-        const adminRoles = ['owner', 'manager', 'content_editor', 'fulfillment'];
-        if (!profile || !adminRoles.includes(profile.role)) {
+        const isAdmin = profile?.role === 'admin';
+        const isStaff = profile?.role === 'staff';
+        const isStaffPath = request.nextUrl.pathname.startsWith('/admin/staff');
+
+        // Block non-admin users from admin dashboard, allow staff only on staff paths
+        if (!isAdmin && !isStaff) {
             const url = request.nextUrl.clone();
             url.pathname = '/';
+            return NextResponse.redirect(url);
+        }
+
+        // Redirect staff away from main admin dashboard
+        if (isStaff && !isAdmin && !isStaffPath) {
+            const url = request.nextUrl.clone();
+            url.pathname = '/admin/staff';
             return NextResponse.redirect(url);
         }
     }

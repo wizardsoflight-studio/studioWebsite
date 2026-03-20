@@ -17,17 +17,27 @@ export function useAuth() {
     );
 
     const getRole = useCallback(async (userId: string) => {
-        const { data } = await supabase
-            .from('profiles')
-            .select('role')
-            .eq('id', userId)
-            .single();
-        return data?.role as UserRole;
+        // Use RPC function for faster role lookup
+        const { data, error } = await supabase.rpc('get_user_role');
+        if (error || !data) {
+            // Fallback to direct query
+            const { data: profileData } = await supabase
+                .from('profiles')
+                .select('role')
+                .eq('id', userId)
+                .single();
+            return profileData?.role as UserRole;
+        }
+        return data as UserRole;
     }, []);
 
     useEffect(() => {
+        let isMounted = true;
+
         // Get initial session
         supabase.auth.getSession().then(async ({ data: { session } }) => {
+            if (!isMounted) return;
+
             if (session?.user) {
                 setUser(session.user);
                 const userRole = await getRole(session.user.id);
@@ -39,7 +49,17 @@ export function useAuth() {
         // Listen for auth changes
         const {
             data: { subscription },
-        } = supabase.auth.onAuthStateChange(async (_event, session) => {
+        } = supabase.auth.onAuthStateChange(async (event, session) => {
+            if (!isMounted) return;
+
+            // Handle sign out immediately
+            if (event === 'SIGNED_OUT') {
+                setUser(null);
+                setRole(null);
+                setLoading(false);
+                return;
+            }
+
             if (session?.user) {
                 setUser(session.user);
                 const userRole = await getRole(session.user.id);
@@ -51,7 +71,10 @@ export function useAuth() {
             setLoading(false);
         });
 
-        return () => subscription.unsubscribe();
+        return () => {
+            isMounted = false;
+            subscription.unsubscribe();
+        };
     }, [getRole]);
 
     const signOut = useCallback(async () => {

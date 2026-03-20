@@ -3,21 +3,48 @@
 -- Wizard Of Light - Admin, Staff, Customer Roles
 -- =====================================================
 
--- 1. Create enum for user roles
+-- 1. Drop any policies that depend on the role column (will recreate later)
+DROP POLICY IF EXISTS "Admins can upload product images" ON storage.objects;
+DROP POLICY IF EXISTS "Admins can view all profiles" ON profiles;
+DROP POLICY IF EXISTS "Admins can update all profiles" ON profiles;
+
+-- 2. Drop existing check constraint on role if it exists
+ALTER TABLE profiles DROP CONSTRAINT IF EXISTS profiles_role_check;
+
+-- 3. Drop existing default
+ALTER TABLE profiles ALTER COLUMN role DROP DEFAULT;
+
+-- 4. Create enum for user roles
 DO $$ BEGIN
     CREATE TYPE user_role AS ENUM ('admin', 'staff', 'customer');
-EXCEPTION
-    WHEN duplicate_object THEN null;
+EXCEPTION WHEN duplicate_object THEN null;
 END $$;
 
--- 2. Add role column to profiles table if not exists
-ALTER TABLE profiles 
-ADD COLUMN IF NOT EXISTS role user_role DEFAULT 'customer';
+-- 5. Convert existing role column to use enum (drop and recreate column approach)
+-- First, add a new column with the enum type
+ALTER TABLE profiles ADD COLUMN role_new user_role DEFAULT 'customer';
 
--- 3. Add index on role for faster lookups
+-- Copy existing data, mapping text values to enum
+UPDATE profiles SET role_new =
+    CASE
+        WHEN role::text = 'admin' THEN 'admin'
+        WHEN role::text = 'staff' THEN 'staff'
+        ELSE 'customer'
+    END::user_role;
+
+-- Drop the old column
+ALTER TABLE profiles DROP COLUMN role;
+
+-- Rename new column to role
+ALTER TABLE profiles RENAME COLUMN role_new TO role;
+
+-- Set default
+ALTER TABLE profiles ALTER COLUMN role SET DEFAULT 'customer';
+
+-- 6. Add index on role for faster lookups
 CREATE INDEX IF NOT EXISTS idx_profiles_role ON profiles(role);
 
--- 4. Create admin_users table for additional admin metadata
+-- 7. Create admin_users table for additional admin metadata
 CREATE TABLE IF NOT EXISTS admin_users (
     id UUID PRIMARY KEY REFERENCES auth.users(id) ON DELETE CASCADE,
     profile_id UUID UNIQUE REFERENCES profiles(id) ON DELETE CASCADE,
@@ -230,7 +257,19 @@ SELECT
     (SELECT COUNT(*) FROM auth.users WHERE last_sign_in_at > NOW() - INTERVAL '7 days') as active_users_7d,
     (SELECT COUNT(*) FROM auth.users WHERE last_sign_in_at > NOW() - INTERVAL '30 days') as active_users_30d;
 
--- 13. Grant necessary permissions
+-- 13. Recreate storage policy that was dropped at the start
+CREATE POLICY "Admins can upload product images"
+ON storage.objects FOR INSERT
+TO authenticated
+WITH CHECK (
+    bucket_id = 'products' AND
+    EXISTS (
+        SELECT 1 FROM profiles
+        WHERE id = auth.uid() AND role = 'admin'::user_role
+    )
+);
+
+-- 14. Grant necessary permissions
 GRANT USAGE ON SCHEMA public TO authenticated;
 GRANT ALL ON profiles TO authenticated;
 GRANT ALL ON admin_users TO authenticated;

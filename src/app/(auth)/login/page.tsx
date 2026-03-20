@@ -32,7 +32,9 @@ export default function LoginPage() {
             return;
         }
 
-        window.location.href = '/account';
+        // Use router.push for faster client-side navigation
+        // The middleware will handle session refresh
+        router.push('/account');
     };
 
     const handleSocialLogin = async (provider: 'google' | 'discord') => {
