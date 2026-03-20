@@ -12,7 +12,7 @@ export const metadata: Metadata = {
 export default async function AdminProductsPage() {
     const supabase = await createClient();
 
-    const { data: products } = await supabase
+    const { data: products, error } = await supabase
         .from('products')
         .select(`
       *,
@@ -20,6 +20,16 @@ export default async function AdminProductsPage() {
       product_images(url, is_primary)
     `)
         .order('created_at', { ascending: false });
+
+    if (error) {
+        return (
+            <div className={styles.emptyState} style={{ color: 'var(--color-error)' }}>
+                <h3>Database Error Loading Products</h3>
+                <p>{error.message}</p>
+                <p style={{ fontSize: '0.8rem', opacity: 0.7 }}>Check your Supabase database schema to ensure relationships (product_variants, product_images) are configured correctly.</p>
+            </div>
+        );
+    }
 
     return (
         <>
