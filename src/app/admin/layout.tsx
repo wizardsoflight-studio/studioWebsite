@@ -4,29 +4,16 @@ import { BarChart3, Package, ShoppingCart, Users, Settings, Tag, Shield } from '
 import { getAuthUser, getUserProfile } from '@/lib/supabase/server';
 import styles from './admin.module.css';
 
-type AdminRole = 'owner' | 'manager' | 'content_editor' | 'fulfillment';
+type AdminRole = 'admin' | 'staff';
 
-/**
- * Role-based navigation visibility map.
- *
- * Role capabilities:
- *   fulfillment    — orders only (pick/pack/ship)
- *   content_editor — products + categories (no customers, no settings)
- *   manager        — everything except settings
- *   owner          — everything
- */
 const ROLE_NAV: Record<AdminRole, string[]> = {
-    fulfillment:    ['orders'],
-    content_editor: ['products', 'categories'],
-    manager:        ['dashboard', 'products', 'orders', 'categories', 'customers'],
-    owner:          ['dashboard', 'products', 'orders', 'categories', 'customers', 'settings'],
+    staff: ['orders', 'products', 'customers'],
+    admin: ['dashboard', 'products', 'orders', 'categories', 'customers', 'settings'],
 };
 
 const ROLE_LABELS: Record<AdminRole, string> = {
-    owner:          'Owner',
-    manager:        'Manager',
-    content_editor: 'Content Editor',
-    fulfillment:    'Fulfillment',
+    admin: 'Admin',
+    staff: 'Staff',
 };
 
 export default async function AdminLayout({
@@ -42,7 +29,7 @@ export default async function AdminLayout({
 
     const { profile } = await getUserProfile(user.id);
 
-    const adminRoles: AdminRole[] = ['owner', 'manager', 'content_editor', 'fulfillment'];
+    const adminRoles: AdminRole[] = ['admin', 'staff'];
     if (!profile || !adminRoles.includes(profile.role as AdminRole)) {
         redirect('/');
     }

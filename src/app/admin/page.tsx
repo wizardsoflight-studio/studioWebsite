@@ -22,8 +22,11 @@ export default async function AdminDashboard() {
         .eq('id', user.id)
         .single();
 
-    // Redirect non-admins to account page
+    // Redirect non-admins to appropriate fallback pages
     if (profile?.role !== 'admin') {
+        if (profile?.role === 'staff') {
+            redirect('/admin/staff');
+        }
         redirect('/account');
     }
 
