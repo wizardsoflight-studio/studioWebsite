@@ -21,25 +21,21 @@
         <h1>WIZARD OF LIGHT</h1>
       </div>
       <div class="content">
-        <h2 style="margin-top: 0; font-size: 24px; color: #ffffff;">Welcome to the Clan 🛡️</h2>
+        <h2 style="margin-top: 0; font-size: 24px; color: #ffffff;">Secure Login 🔑</h2>
         <p style="line-height: 1.8; margin-bottom: 24px; font-size: 16px; color: #cccccc;">
-          Thank you for signing up for Wizard Of Light. To finish setting up your account, we just need to verify your email address.
+          You requested a secure magic link to log in to your account. Click the button below to instantly authenticate into Wizard Of Light.
         </p>
         
-        <a href="{{ .ConfirmationURL }}" class="btn">Confirm Email Address</a>
+        <a href="{{ .ConfirmationURL }}" class="btn">Log In Instantly</a>
         
         <p style="font-size: 14px; color: #777777; margin-top: 32px;">
-          If you didn't create an account with us, you can safely ignore this email.
+          This secure link is valid for 5 minutes. If you did not request this link, your account is safe and you can ignore this email.
         </p>
       </div>
       <div class="footer">
         <p>&copy; 2026 Wizard Of Light. Uncompromising craft.</p>
-        <p>
-          <a href="{{ .SiteURL }}">Visit Store</a> • 
-          <a href="{{ .SiteURL }}/contact">Contact Us</a>
-        </p>
         <p style="font-size: 11px; color: #555555; margin-top: 16px;">
-            This email was securely sent to {{ .Email }}.
+            Securely requested for {{ .Email }}.
         </p>
       </div>
     </div>

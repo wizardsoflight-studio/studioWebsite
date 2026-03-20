@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import Image from 'next/image';
 import { Flame, Heart, Eye, Scissors } from 'lucide-react';
 import styles from './about.module.css';
 import type { Metadata } from 'next';
@@ -30,22 +31,15 @@ export default function AboutPage() {
             <section className={styles.storySection}>
                 <div className="container">
                     <div className={styles.storyGrid}>
-                        <div className={styles.aboutImageContainer}>
-                            {/* Placeholder for Bryan's picture */}
-                            <div className={styles.aboutImagePlaceholder}>
-                                <div style={{
-                                    width: '100%',
-                                    height: '100%',
-                                    background: 'var(--color-bg-elevated)',
-                                    display: 'flex',
-                                    alignItems: 'center',
-                                    justifyContent: 'center',
-                                    borderRadius: 'var(--radius-md)',
-                                    border: '1px solid var(--color-border)'
-                                }}>
-                                    <span style={{ color: 'var(--color-text-muted)' }}>Bryan's Photo</span>
-                                </div>
-                            </div>
+                        <div className={styles.storyImageWrapper} style={{ position: 'relative' }}>
+                            <Image
+                                src="/images/staff/BryanNWright.jpg"
+                                alt="Bryan N Wright, Owner of Wizard Of Light"
+                                fill
+                                style={{ objectFit: 'cover', borderRadius: 'inherit' }}
+                                sizes="(max-width: 768px) 100vw, 50vw"
+                                priority
+                            />
                         </div>
                         <div className={styles.storyContent}>
                             <h2>

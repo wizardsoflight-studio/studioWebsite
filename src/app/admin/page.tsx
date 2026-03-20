@@ -1,6 +1,7 @@
 import { createClient } from '@/lib/supabase/server';
 import { redirect } from 'next/navigation';
 import Link from 'next/link';
+import { promoteUser, demoteUser } from './customers/actions';
 import { Users, Package, ShoppingCart, TrendingUp, Shield, UserCog } from 'lucide-react';
 import styles from './admin.module.css';
 
@@ -129,7 +130,7 @@ export default async function AdminDashboard() {
                                 {profile.role === 'admin' && userProfile.id !== user.id && (
                                     <div className={styles.actionButtons}>
                                         {userProfile.role !== 'admin' && (
-                                            <form action="/admin/promote" method="POST" className={styles.inlineForm}>
+                                            <form action={promoteUser} className={styles.inlineForm}>
                                                 <input type="hidden" name="userId" value={userProfile.id} />
                                                 <input type="hidden" name="role" value={userProfile.role === 'staff' ? 'admin' : 'staff'} />
                                                 <button type="submit" className={styles.promoteBtn}>
@@ -138,7 +139,7 @@ export default async function AdminDashboard() {
                                             </form>
                                         )}
                                         {userProfile.role !== 'customer' && (
-                                            <form action="/admin/demote" method="POST" className={styles.inlineForm}>
+                                            <form action={demoteUser} className={styles.inlineForm}>
                                                 <input type="hidden" name="userId" value={userProfile.id} />
                                                 <button type="submit" className={styles.demoteBtn}>
                                                     Remove Role
