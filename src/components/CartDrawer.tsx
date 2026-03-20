@@ -2,6 +2,7 @@
 
 import { useEffect } from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 import { X, ShoppingBag, Package } from 'lucide-react';
 import { useCart } from '@/context/CartContext';
 import { formatPrice } from '@/lib/utils';
@@ -82,7 +83,13 @@ export default function CartDrawer() {
                             <div key={item.variantId} className={styles.cartItem}>
                                 <div className={styles.itemImage}>
                                     {item.image ? (
-                                        <img src={item.image} alt={item.productName} />
+                                        <Image
+                                            src={item.image}
+                                            alt={item.productName}
+                                            width={64}
+                                            height={64}
+                                            style={{ objectFit: 'cover', width: '100%', height: '100%' }}
+                                        />
                                     ) : (
                                         <Package size={24} className={styles.itemImagePlaceholder} />
                                     )}
@@ -137,7 +144,7 @@ export default function CartDrawer() {
                             className={styles.checkoutBtn}
                             onClick={closeCart}
                         >
-                            View Cart & Checkout
+                            View Cart
                         </Link>
                         <button className={styles.continueShopping} onClick={closeCart}>
                             Continue Shopping

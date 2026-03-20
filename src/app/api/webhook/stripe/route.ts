@@ -2,7 +2,13 @@ import { NextResponse } from 'next/server';
 import { stripe } from '@/lib/stripe';
 import { createServerClient } from '@supabase/ssr';
 
-export async function POST(request: Request) {
+// PAYMENTS DISABLED — webhook is silenced until Stripe is re-enabled.
+// Return 200 so Stripe doesn't retry and flood the logs.
+export async function POST(_request: Request) {
+    return NextResponse.json({ received: true, status: 'payments_disabled' });
+}
+
+async function _POST(request: Request) {
     const body = await request.text();
     const signature = request.headers.get('stripe-signature');
 

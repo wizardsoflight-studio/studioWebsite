@@ -2,7 +2,16 @@ import { NextResponse } from 'next/server';
 import { stripe } from '@/lib/stripe';
 import { createClient } from '@/lib/supabase/server';
 
-export async function POST(request: Request) {
+// PAYMENTS DISABLED — online checkout is not yet active.
+// Re-enable by removing this early return when a payment processor is configured.
+export async function POST(_request: Request) {
+    return NextResponse.json(
+        { error: 'Online checkout is not yet available. Please contact us to place an order.' },
+        { status: 503 }
+    );
+}
+
+async function _POST(request: Request) {
     try {
         const body = await request.json();
         const { items, shippingAddress } = body;

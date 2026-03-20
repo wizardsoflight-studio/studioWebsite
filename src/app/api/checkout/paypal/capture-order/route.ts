@@ -27,7 +27,15 @@ async function generateAccessToken() {
     return data.access_token;
 }
 
-export async function POST(req: NextRequest) {
+// PAYMENTS DISABLED — re-enable when PayPal is configured.
+export async function POST(_req: NextRequest) {
+    return NextResponse.json(
+        { error: 'Online checkout is not yet available. Please contact us to place an order.' },
+        { status: 503 }
+    );
+}
+
+async function _POST(req: NextRequest) {
     try {
         const { orderID } = await req.json();
 

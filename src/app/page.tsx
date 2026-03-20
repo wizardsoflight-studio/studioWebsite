@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import { Hammer, Sparkles, Shield } from 'lucide-react';
+import { Hammer, Sparkles, ShieldCheck } from 'lucide-react';
 import styles from './page.module.css';
 
 export default function Home() {
@@ -10,20 +10,21 @@ export default function Home() {
         <div className={styles.heroOverlay} />
         <div className={styles.heroContent}>
           <h1 className={styles.heroTitle}>
-            Crafted in <span className={styles.heroTitleAccent}>Leather</span>,
+            Where <span className={styles.heroTitleAccent}>Craft</span> Meets
             <br />
-            Born from Light
+            Every Desire
           </h1>
           <p className={styles.heroSubtitle}>
-            Handcrafted leather goods for cosplay, everyday carry, and the
-            adventurous spirit. Every piece tells a story.
+            Wizard Of Light is a Nebraska-based leather studio creating premium
+            handcrafted goods — from everyday carry and armor to an exclusive
+            18+ collection. Every piece cut, stitched, and finished by hand.
           </p>
           <div className={styles.heroCtas}>
             <Link href="/shop" className={styles.btnPrimary}>
-              Explore the Shop
+              Browse the Shop
             </Link>
-            <Link href="/about" className={styles.btnSecondary}>
-              Our Story
+            <Link href="/shop/nsfw" className={styles.btnSecondary}>
+              18+ Collection
             </Link>
           </div>
         </div>
@@ -40,30 +41,30 @@ export default function Home() {
               <div className={styles.featureIcon}>
                 <Hammer size={28} />
               </div>
-              <h3>Handcrafted Quality</h3>
+              <h3>Built by Hand</h3>
               <p>
-                Every piece is cut, stitched, and finished by hand using
-                premium full-grain leather.
+                Every piece is hand-cut, hand-stitched, and hand-finished from
+                premium full-grain leather. Genuine craft in every seam.
               </p>
             </div>
             <div className={styles.featureCard}>
               <div className={styles.featureIcon}>
                 <Sparkles size={28} />
               </div>
-              <h3>Custom Creations</h3>
+              <h3>Your Vision, Realized</h3>
               <p>
-                From cosplay armor to bespoke accessories — bring your vision
-                to life with a custom order.
+                From convention armor to intimate accessories — if you can
+                imagine it, we can build it. Custom commissions always open.
               </p>
             </div>
             <div className={styles.featureCard}>
               <div className={styles.featureIcon}>
-                <Shield size={28} />
+                <ShieldCheck size={28} />
               </div>
-              <h3>Built to Last</h3>
+              <h3>Quality That Lasts</h3>
               <p>
-                Premium materials and traditional techniques ensure every
-                piece ages beautifully and lasts a lifetime.
+                Premium materials, traditional techniques, and obsessive
+                attention to detail. Made to be used, enjoyed, and passed on.
               </p>
             </div>
           </div>
@@ -73,14 +74,14 @@ export default function Home() {
       {/* ---- CTA Banner ---- */}
       <section className={styles.ctaBanner} id="cta-banner">
         <h2 className={styles.sectionTitle}>
-          Ready to Commission Your <span className={styles.sectionTitleAccent}>Masterpiece</span>?
+          Something <span className={styles.sectionTitleAccent}>Unique</span> in Mind?
         </h2>
         <p>
-          Whether it&apos;s cosplay armor, a custom belt, or something uniquely
-          yours — let&apos;s create it together.
+          Whether it&apos;s a custom belt, armor for a convention, or something
+          from the 18+ collection — let&apos;s talk about what you&apos;re looking for.
         </p>
         <Link href="/contact" className={styles.btnPrimary} style={{ position: 'relative' }}>
-          Get in Touch
+          Start a Conversation
         </Link>
       </section>
     </>

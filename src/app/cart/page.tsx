@@ -1,7 +1,8 @@
 'use client';
 
 import Link from 'next/link';
-import { ShoppingBag, Package, Shield, ArrowRight } from 'lucide-react';
+import Image from 'next/image';
+import { ShoppingBag, Package, Mail, ArrowRight } from 'lucide-react';
 import { useCart } from '@/context/CartContext';
 import { formatPrice } from '@/lib/utils';
 import styles from './cart.module.css';
@@ -39,7 +40,13 @@ export default function CartPage() {
                             <div key={item.variantId} className={styles.cartItem}>
                                 <div className={styles.itemImage}>
                                     {item.image ? (
-                                        <img src={item.image} alt={item.productName} />
+                                        <Image
+                                            src={item.image}
+                                            alt={item.productName}
+                                            width={80}
+                                            height={80}
+                                            style={{ objectFit: 'cover', width: '100%', height: '100%' }}
+                                        />
                                     ) : (
                                         <Package size={32} className={styles.itemImagePlaceholder} />
                                     )}
@@ -107,22 +114,14 @@ export default function CartPage() {
                             <span>Subtotal</span>
                             <span>{formatPrice(subtotal)}</span>
                         </div>
-                        <div className={styles.summaryRow}>
-                            <span>Shipping</span>
-                            <span>Calculated at checkout</span>
-                        </div>
-                        <div className={styles.summaryRow}>
-                            <span>Tax</span>
-                            <span>Calculated at checkout</span>
-                        </div>
-
                         <div className={styles.summaryTotal}>
-                            <span>Total</span>
+                            <span>Estimated Total</span>
                             <span>{formatPrice(subtotal)}</span>
                         </div>
 
-                        <Link href="/checkout" className={styles.checkoutBtn}>
-                            Proceed to Checkout
+                        <Link href="/contact" className={styles.checkoutBtn}>
+                            <Mail size={16} />
+                            Contact Us to Order
                         </Link>
 
                         <Link href="/shop" className={styles.continueLink}>
@@ -130,8 +129,8 @@ export default function CartPage() {
                         </Link>
 
                         <div className={styles.secureNote}>
-                            <Shield size={14} />
-                            Secure checkout powered by Stripe
+                            <ShoppingBag size={14} />
+                            Handcrafted to order — we&apos;ll arrange payment directly
                         </div>
                     </div>
                 </div>

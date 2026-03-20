@@ -37,9 +37,10 @@
   --color-border-accent: var(--color-orange);
 
   /* ---- Typography ---- */
-  --font-display: 'Comforter', cursive;
-  --font-subtitle: 'Charm', serif;
-  --font-body: 'Alice', serif;
+  /* CSS variables injected by next/font in layout.tsx */
+  --font-display: var(--font-comforter), cursive;
+  --font-subtitle: var(--font-charm), serif;
+  --font-body: var(--font-alice), serif;
 
   /* Font Sizes */
   --text-xs: 0.75rem;

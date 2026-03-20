@@ -9,11 +9,14 @@
     justify-content: space-between;
     align-items: center;
     margin-bottom: var(--space-xl);
+    flex-wrap: wrap;
+    gap: var(--space-md);
 }
 
 .title {
+    font-family: var(--font-subtitle);
     font-size: var(--text-2xl);
-    font-family: var(--font-fancy);
+    color: var(--color-text-primary);
 }
 
 .actions {
@@ -22,25 +25,40 @@
 }
 
 .cancelBtn {
-    padding: var(--space-sm) var(--space-md);
+    padding: var(--space-sm) var(--space-lg);
     background: transparent;
     border: 1px solid var(--color-border);
     color: var(--color-text-secondary);
-    border-radius: var(--radius-sm);
+    border-radius: var(--radius-md);
+    font-family: var(--font-body);
+    font-size: var(--text-sm);
     cursor: pointer;
+    transition: all var(--transition-fast);
+}
+
+.cancelBtn:hover {
+    border-color: var(--color-text-secondary);
+    color: var(--color-text-primary);
 }
 
 .saveBtn {
-    display: flex;
+    display: inline-flex;
     align-items: center;
-    gap: var(--space-sm);
+    gap: var(--space-xs);
     padding: var(--space-sm) var(--space-xl);
-    background: var(--color-accent);
-    color: var(--color-bg);
+    background: var(--color-cta);
+    color: var(--color-white);
     border: none;
-    border-radius: var(--radius-sm);
-    font-weight: var(--weight-medium);
+    border-radius: var(--radius-md);
+    font-family: var(--font-body);
+    font-size: var(--text-sm);
+    font-weight: var(--weight-semibold);
     cursor: pointer;
+    transition: all var(--transition-fast);
+}
+
+.saveBtn:hover:not(:disabled) {
+    background: var(--color-cta-hover);
 }
 
 .saveBtn:disabled {
@@ -48,10 +66,23 @@
     cursor: not-allowed;
 }
 
+/* ---- Error banner ---- */
+.errorBanner {
+    padding: var(--space-md);
+    background: rgba(239, 68, 68, 0.1);
+    border: 1px solid rgba(239, 68, 68, 0.3);
+    border-radius: var(--radius-md);
+    color: var(--color-error);
+    font-size: var(--text-sm);
+    margin-bottom: var(--space-lg);
+}
+
+/* ---- Layout ---- */
 .grid {
     display: grid;
     grid-template-columns: 1fr 300px;
     gap: var(--space-xl);
+    align-items: start;
 }
 
 .mainColumn,
@@ -61,24 +92,34 @@
     gap: var(--space-xl);
 }
 
+/* ---- Card ---- */
 .card {
-    background: var(--color-surface);
+    background: var(--color-bg-card);
     border: 1px solid var(--color-border);
-    border-radius: var(--radius-md);
+    border-radius: var(--radius-lg);
     padding: var(--space-xl);
     display: flex;
     flex-direction: column;
     gap: var(--space-md);
 }
 
-.card h3 {
-    font-size: var(--text-lg);
-    font-weight: var(--weight-medium);
-    margin-bottom: var(--space-sm);
+.cardTitle {
+    font-family: var(--font-subtitle);
+    font-size: var(--text-base);
+    font-weight: var(--weight-semibold);
+    color: var(--color-text-primary);
     border-bottom: 1px solid var(--color-border);
     padding-bottom: var(--space-sm);
+    margin-bottom: var(--space-xs);
 }
 
+.cardHint {
+    font-size: var(--text-xs);
+    color: var(--color-text-muted);
+    margin-top: calc(-1 * var(--space-xs));
+}
+
+/* ---- Form Fields ---- */
 .field {
     display: flex;
     flex-direction: column;
@@ -93,39 +134,93 @@
 
 .input,
 .textarea {
-    padding: var(--space-sm);
-    background: var(--color-bg);
+    padding: var(--space-sm) var(--space-md);
+    background: var(--color-bg-elevated);
     border: 1px solid var(--color-border);
-    border-radius: var(--radius-sm);
+    border-radius: var(--radius-md);
     color: var(--color-text-primary);
-    font-family: inherit;
+    font-family: var(--font-body);
+    font-size: var(--text-sm);
+    transition: border-color var(--transition-fast);
+    width: 100%;
 }
 
 .input:focus,
 .textarea:focus {
-    border-color: var(--color-accent);
+    border-color: var(--color-accent-primary);
     outline: none;
+}
+
+.textarea {
+    resize: vertical;
+    min-height: 120px;
+}
+
+/* ---- Checkboxes ---- */
+.checkboxGroup {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-md);
 }
 
 .checkbox {
     display: flex;
-    align-items: center;
+    align-items: flex-start;
     gap: var(--space-sm);
     cursor: pointer;
+    font-size: var(--text-sm);
+    color: var(--color-text-secondary);
 }
 
+.checkbox input[type="checkbox"] {
+    width: 16px;
+    height: 16px;
+    accent-color: var(--color-accent-primary);
+    cursor: pointer;
+    flex-shrink: 0;
+    margin-top: 2px;
+}
+
+.checkbox strong {
+    color: var(--color-text-primary);
+    font-size: var(--text-sm);
+    display: block;
+}
+
+.checkbox small {
+    font-size: var(--text-xs);
+    color: var(--color-text-muted);
+}
+
+/* ---- Category Groups ---- */
+.categoryGroup {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-sm);
+}
+
+.categoryGroupLabel {
+    font-size: var(--text-xs);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--color-text-muted);
+    margin-bottom: 4px;
+}
+
+/* ---- Image Grid ---- */
 .imageGrid {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+    grid-template-columns: repeat(auto-fill, minmax(110px, 1fr));
     gap: var(--space-md);
 }
 
 .imagePreview {
     position: relative;
     aspect-ratio: 1;
-    border-radius: var(--radius-sm);
+    border-radius: var(--radius-md);
     overflow: hidden;
     border: 1px solid var(--color-border);
+    background: var(--color-bg-elevated);
 }
 
 .imagePreview img {
@@ -134,75 +229,112 @@
     object-fit: cover;
 }
 
-.removeImageBtn {
+.primaryBadge {
     position: absolute;
-    top: 4px;
-    right: 4px;
-    background: rgba(0, 0, 0, 0.6);
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: var(--color-accent-primary);
+    color: var(--color-white);
+    font-size: 10px;
+    font-weight: var(--weight-bold);
+    padding: 3px 6px;
+    display: flex;
+    align-items: center;
+    gap: 3px;
+    justify-content: center;
+}
+
+.imageOverlay {
+    position: absolute;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.5);
+    display: flex;
+    align-items: flex-start;
+    justify-content: flex-end;
+    padding: 4px;
+    gap: 4px;
+    opacity: 0;
+    transition: opacity var(--transition-fast);
+}
+
+.imagePreview:hover .imageOverlay {
+    opacity: 1;
+}
+
+.removeImageBtn,
+.setMainBtn {
+    background: rgba(0, 0, 0, 0.7);
     color: white;
     border: none;
-    border-radius: 50%;
-    width: 20px;
-    height: 20px;
+    border-radius: var(--radius-sm);
+    width: 24px;
+    height: 24px;
     display: flex;
     align-items: center;
     justify-content: center;
     cursor: pointer;
+    transition: background var(--transition-fast);
 }
 
-.primaryBtn {
-    position: absolute;
-    bottom: 0;
-    left: 0;
-    width: 100%;
-    background: rgba(0, 0, 0, 0.6);
-    color: white;
-    border: none;
-    font-size: 10px;
-    padding: 2px 0;
-    cursor: pointer;
+.removeImageBtn:hover {
+    background: var(--color-error);
 }
 
-.activePrimary {
-    background: var(--color-accent);
-    color: var(--color-bg);
+.setMainBtn:hover {
+    background: var(--color-accent-primary);
 }
 
 .uploadZone {
     aspect-ratio: 1;
     border: 2px dashed var(--color-border);
-    border-radius: var(--radius-sm);
+    border-radius: var(--radius-md);
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    gap: var(--space-sm);
-    color: var(--color-text-secondary);
+    gap: var(--space-xs);
+    color: var(--color-text-muted);
     cursor: pointer;
-    transition: all 0.2s;
+    transition: all var(--transition-fast);
+    min-height: 110px;
 }
 
 .uploadZone:hover {
-    border-color: var(--color-accent);
-    color: var(--color-accent);
+    border-color: var(--color-accent-primary);
+    color: var(--color-accent-primary);
+    background: rgba(254, 96, 47, 0.03);
 }
 
+.uploadZone.uploading {
+    pointer-events: none;
+    opacity: 0.7;
+}
+
+.uploadHint {
+    font-size: 10px;
+    color: var(--color-text-muted);
+}
+
+/* ---- Spinner ---- */
 .spinner {
-    animation: spin 1s linear infinite;
+    animation: spin 0.8s linear infinite;
 }
 
 @keyframes spin {
-    from {
-        transform: rotate(0deg);
-    }
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+}
 
-    to {
-        transform: rotate(360deg);
+@media (max-width: 960px) {
+    .grid {
+        grid-template-columns: 1fr;
     }
 }
 
-@media (max-width: 768px) {
-    .grid {
-        grid-template-columns: 1fr;
+@media (max-width: 480px) {
+    .formHeader {
+        flex-direction: column;
+        align-items: flex-start;
     }
 }

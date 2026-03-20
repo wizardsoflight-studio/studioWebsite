@@ -5,7 +5,7 @@ import type { Metadata } from 'next';
 
 export const metadata: Metadata = {
     title: 'About',
-    description: 'The story behind Wizard Of Light — handcrafted leather by Bryan, born from passion and built to last.',
+    description: 'Wizard Of Light is a Nebraska leather studio crafting premium goods for everyday carry, armor enthusiasts, and an exclusive 18+ community — all made by hand.',
 };
 
 export default function AboutPage() {
@@ -15,13 +15,13 @@ export default function AboutPage() {
             <section className={styles.aboutHero}>
                 <div className="container">
                     <h1 className={styles.aboutTitle}>
-                        The <span className={styles.aboutTitleAccent}>Wizard</span> Behind the Craft
+                        The <span className={styles.aboutTitleAccent}>Studio</span> Behind the Craft
                     </h1>
                     <p className={styles.aboutIntro}>
-                        Every piece from Wizard Of Light begins with a vision and ends with
-                        a story. What started as a passion project in a small workshop has
-                        grown into a studio dedicated to creating leather goods that are as
-                        unique as the people who wear them.
+                        Wizard Of Light is a Nebraska-based leather workshop where every
+                        single piece is made by hand. From premium everyday carry goods to
+                        handcrafted armor and an exclusive 18+ collection — this is leather
+                        work done with intention, craft, and no compromises.
                     </p>
                 </div>
             </section>
@@ -49,27 +49,25 @@ export default function AboutPage() {
                         </div>
                         <div className={styles.storyContent}>
                             <h2>
-                                A Workshop Born from <span>Passion</span>
+                                A Studio Built on <span>Craft</span>
                             </h2>
                             <p>
-                                Bryan discovered leathercraft through the cosplay community. What
-                                started as making his own armor pieces quickly turned into a deep
-                                love for the art of leather — the smell of fresh-cut hide, the
-                                satisfaction of a perfect stitch line, the pride of creating
-                                something that lasts.
+                                Bryan built Wizard Of Light from a genuine love of leather —
+                                the smell of fresh-cut hide, the satisfaction of a perfect
+                                stitch line, the pride of sending something out into the world
+                                that will last for years.
                             </p>
                             <p>
-                                Today, Wizard Of Light serves a community of cosplayers,
-                                Renaissance faire enthusiasts, everyday carry aficionados, and
-                                anyone who appreciates handcrafted quality. Every belt, bracer,
-                                and wallet that leaves the studio carries a piece of that original
-                                spark.
+                                WOL serves a broad community: everyday carry enthusiasts who
+                                want something better than mass-produced, armor builders and
+                                faire-goers, and adults looking for premium leather goods in
+                                the 18+ space — all with the same uncompromising standard of
+                                craft.
                             </p>
                             <p>
-                                Based in Nebraska, Bryan works with premium full-grain leather
-                                sourced from trusted tanneries. Each piece is hand-cut,
-                                hand-stitched, and hand-finished — because the best things in
-                                life are made by hand.
+                                Every piece leaves the Nebraska studio hand-cut,
+                                hand-stitched, and hand-finished. Premium full-grain leather
+                                from trusted tanneries. Traditional techniques. Zero shortcuts.
                             </p>
                         </div>
                     </div>
@@ -107,10 +105,11 @@ export default function AboutPage() {
                             <div className={styles.valueIcon}>
                                 <Heart size={28} />
                             </div>
-                            <h3>Community Driven</h3>
+                            <h3>Community First</h3>
                             <p>
-                                We&apos;re part of the communities we serve. You&apos;ll find us
-                                at faires, conventions, and markets — leather in hand.
+                                WOL exists inside the communities it serves — faires,
+                                conventions, and kink spaces alike. We show up, we listen,
+                                and we build what our customers actually want.
                             </p>
                         </div>
                     </div>
@@ -124,8 +123,8 @@ export default function AboutPage() {
                         Let&apos;s Create Something <span className={styles.sectionTitleAccent}>Together</span>
                     </h2>
                     <p>
-                        Have an idea for a custom piece? Want to collaborate on a cosplay
-                        build? We&apos;d love to hear from you.
+                        Whether it&apos;s everyday carry, armor, or something from the 18+ collection
+                        — custom work is always welcome. Reach out and let&apos;s build something.
                     </p>
                     <Link href="/contact" className={styles.ctaBtn}>
                         Get in Touch

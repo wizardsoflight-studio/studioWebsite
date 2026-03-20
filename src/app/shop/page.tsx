@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import Image from 'next/image';
 import { Package } from 'lucide-react';
 import { createClient } from '@/lib/supabase/server';
 import { formatPrice, getStockLabel } from '@/lib/utils';
@@ -7,7 +8,7 @@ import type { Metadata } from 'next';
 
 export const metadata: Metadata = {
     title: 'Shop',
-    description: 'Browse handcrafted leather goods — belts, wallets, cosplay armor, and more.',
+    description: 'Browse handcrafted leather goods — belts, wallets, armor, everyday carry, and more.',
 };
 
 interface ShopPageProps {
@@ -18,11 +19,12 @@ export default async function ShopPage({ searchParams }: ShopPageProps) {
     const params = await searchParams;
     const supabase = await createClient();
 
-    // Fetch categories
+    // Fetch visible SFW categories only (is_visible hides retired/internal collections)
     const { data: categories } = await supabase
         .from('categories')
         .select('*')
         .eq('is_nsfw', false)
+        .eq('is_visible', true)
         .order('sort_order');
 
     // Fetch products with their variants
@@ -139,10 +141,13 @@ export default async function ShopPage({ searchParams }: ShopPageProps) {
                                 >
                                     <div className={styles.productImageWrapper}>
                                         {product.primaryImage ? (
-                                            <img
+                                            <Image
                                                 src={product.primaryImage.url}
                                                 alt={product.primaryImage.alt || product.name}
+                                                fill
+                                                sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
                                                 className={styles.productImage}
+                                                style={{ objectFit: 'cover' }}
                                             />
                                         ) : (
                                             <Package size={48} className={styles.productImagePlaceholder} />

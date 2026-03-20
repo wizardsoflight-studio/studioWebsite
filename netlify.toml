@@ -7,3 +7,36 @@
 
 [[plugins]]
   package = "@netlify/plugin-nextjs"
+
+# ── Security & performance headers ────────────────────────────────────────────
+# Applied to all routes. Next.js static assets (_next/static/**) already get
+# long-lived cache headers from @netlify/plugin-nextjs — these cover HTML pages.
+[[headers]]
+  for = "/*"
+  [headers.values]
+    # Prevent clickjacking
+    X-Frame-Options = "SAMEORIGIN"
+    # Prevent MIME-type sniffing
+    X-Content-Type-Options = "nosniff"
+    # Force HTTPS for 1 year, include subdomains
+    Strict-Transport-Security = "max-age=31536000; includeSubDomains; preload"
+    # Minimal referrer info to external sites
+    Referrer-Policy = "strict-origin-when-cross-origin"
+    # Restrict powerful browser features
+    Permissions-Policy = "camera=(), microphone=(), geolocation=(), payment=()"
+    # Basic XSS protection for older browsers
+    X-XSS-Protection = "1; mode=block"
+
+# Cache uploaded product images served directly (if any bypass Next.js Image API)
+[[headers]]
+  for = "/_next/image*"
+  [headers.values]
+    Cache-Control = "public, max-age=86400, stale-while-revalidate=604800"
+
+# ── Redirects ─────────────────────────────────────────────────────────────────
+# www → apex redirect (update if you add a custom domain)
+# [[redirects]]
+#   from = "https://www.yourdomain.com/*"
+#   to   = "https://yourdomain.com/:splat"
+#   status = 301
+#   force  = true

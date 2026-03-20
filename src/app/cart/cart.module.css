@@ -187,7 +187,10 @@
 }
 
 .checkoutBtn {
-    display: block;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--space-xs);
     width: 100%;
     padding: var(--space-md);
     margin-top: var(--space-xl);

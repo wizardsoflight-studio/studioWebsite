@@ -1,8 +1,8 @@
-# Wizard Of Light — Architecture & Implementation Plan
+# Wizard Of Light — Architecture & Developer Reference
 
-> **Version**: 1.0  
-> **Date**: February 12, 2026  
-> **Status**: Approved — Ready for Phase 1 Implementation
+> **Version**: 2.0
+> **Last Updated**: March 20, 2026
+> **Status**: Active — Phase 1 Complete
 
 ---
 
@@ -10,250 +10,108 @@
 
 1. [Overview](#overview)
 2. [Technology Stack](#technology-stack)
-3. [Architecture](#architecture)
-4. [Project Structure](#project-structure)
-5. [Database Schema](#database-schema)
-6. [Key Architectural Decisions](#key-architectural-decisions)
-7. [E-Commerce & Product System](#e-commerce--product-system)
-8. [NSFW / Age-Gated Content](#nsfw--age-gated-content)
-9. [Payment Processing](#payment-processing)
-10. [Shipping](#shipping)
-11. [Authentication & Social Login](#authentication--social-login)
-12. [User Features](#user-features)
-13. [Events Calendar](#events-calendar)
-14. [Journal / Blog](#journal--blog)
-15. [Order Management & Returns](#order-management--returns)
-16. [Admin Reporting & Dashboard](#admin-reporting--dashboard)
-17. [Brand Identity & Design](#brand-identity--design)
-18. [Phased Launch Plan](#phased-launch-plan)
-19. [Development Workflow](#development-workflow)
+3. [Project Structure](#project-structure)
+4. [Database Schema](#database-schema)
+5. [Supabase Setup Guide](#supabase-setup-guide)
+6. [Admin Access Control (RBAC)](#admin-access-control-rbac)
+7. [Product System](#product-system)
+8. [Image Upload Pipeline](#image-upload-pipeline)
+9. [18+ / NSFW Content](#18--nsfw-content)
+10. [Payment Processing](#payment-processing)
+11. [Shipping](#shipping)
+12. [Authentication](#authentication)
+13. [Admin API Routes](#admin-api-routes)
+14. [Known Issues & Resolutions](#known-issues--resolutions)
+15. [Environment Variables](#environment-variables)
+16. [Deployment (Netlify)](#deployment-netlify)
 
 ---
 
 ## Overview
 
-**Wizard Of Light** is a leather work and custom work studio selling both SFW (general leather goods, cosplay) and NSFW (BDSM) products. This document defines the complete architecture for their e-commerce website, built as a fully serverless application.
+**Wizard Of Light (WOL)** is a Nebraska-based leather studio selling handcrafted goods across three categories:
 
-**Key constraints:**
-- Small startup (garage-based studio)
-- Minimal DevOps overhead
-- Dual SFW/NSFW content with age gating
-- Dual payment processors (Stripe prohibits BDSM products)
-- Non-technical staff must be able to manage content
+- **Everyday carry** — belts, wallets, accessories
+- **Armor & props** — Renaissance faire, LARP, convention
+- **18+ leather goods** — BDSM-adjacent adult products (age-gated)
+
+The site is a fully serverless Next.js 16 application hosted on Netlify, backed by Supabase (PostgreSQL + Auth + Storage).
+
+**Key constraints driving technical decisions:**
+- Small operation — minimal DevOps overhead required
+- Dual SFW/NSFW content with age verification
+- Stripe prohibits adult/BDSM products → dual payment processor strategy
+- Non-technical staff must be able to manage content via admin panel
+- Images must be optimised automatically (WebP conversion on upload)
 
 ---
 
 ## Technology Stack
 
-| Layer | Technology | Purpose |
-|---|---|---|
-| **Framework** | Next.js 15 (App Router) | SSR/SSG/ISR, routing, API routes |
-| **Language** | TypeScript | Type safety across the codebase |
-| **Styling** | Vanilla CSS + CSS Modules | Per-component styling, full control |
-| **Database** | Supabase (PostgreSQL) | Products, orders, users, content |
-| **Auth** | Supabase Auth | Google, Discord, Apple, Email/Password |
-| **File Storage** | Supabase Storage | Product images, journal media, avatars |
-| **Payments (SFW)** | Stripe | Checkout, Apple/Google Pay, PayPal |
-| **Payments (NSFW)** | PaymentCloud | High-risk processor for BDSM products |
-| **Email** | Resend | Order confirmations, notifications |
-| **Hosting** | Netlify | CDN, serverless functions, deploy previews |
-| **State Mgmt** | React Context + TanStack Query | Client-side data fetching & caching |
-| **Forms** | React Hook Form + Zod | Validation |
-| **Rich Text** | Tiptap | Journal/blog content editing (WYSIWYG) |
-| **Calendar** | FullCalendar.js | Events display |
-| **Icons** | Lucide React | Consistent icon set |
-| **Animations** | Framer Motion | Page transitions, micro-animations |
-
----
-
-## Architecture
-
-### System Overview
-
-```
-┌─────────────────────────────────────────────────┐
-│              Netlify (Frontend + Serverless)     │
-│  ┌───────────────────┐  ┌────────────────────┐  │
-│  │   Next.js App     │  │   API Routes       │  │
-│  │   SSR / SSG / ISR │  │   (Serverless Fn)  │  │
-│  └────────┬──────────┘  └─────────┬──────────┘  │
-└───────────┼───────────────────────┼──────────────┘
-            │                       │
-            ▼                       ▼
-┌───────────────────────────────────────────────────┐
-│              Supabase (Backend-as-a-Service)       │
-│  ┌──────┐  ┌──────────┐  ┌─────────┐  ┌───────┐ │
-│  │ Auth │  │PostgreSQL│  │ Storage │  │ Edge  │  │
-│  │      │  │  (DB)    │  │ (Files) │  │  Fn   │  │
-│  └──────┘  └──────────┘  └─────────┘  └───────┘ │
-└───────────────────────────────────────────────────┘
-            │                       │
-            ▼                       ▼
-┌────────────────────┐  ┌────────────────────────┐
-│      Stripe        │  │     PaymentCloud       │
-│   (SFW Payments)   │  │   (NSFW Payments)      │
-└────────────────────┘  └────────────────────────┘
-```
-
-### Data Flow: Purchase
-
-1. Customer browses products (SSG/ISR pages)
-2. Adds items to cart (localStorage for guests, Supabase for logged-in)
-3. Proceeds to checkout
-4. System checks cart for NSFW items:
-   - **SFW only** → Stripe Checkout Session
-   - **NSFW only** → PaymentCloud checkout
-   - **Mixed** → Split into two separate orders
-5. Customer completes payment on processor's page
-6. Webhook fires → Supabase Edge Function updates order status
-7. Customer receives order confirmation email via Resend
-8. Customer redirected to order confirmation page
+| Layer | Technology | Version | Purpose |
+|---|---|---|---|
+| **Framework** | Next.js App Router | 16.1.6 | SSR/SSG, routing, API routes |
+| **Language** | TypeScript | 5 | Full-stack type safety |
+| **Styling** | CSS Modules + Variables | — | Component-scoped styles |
+| **Database** | Supabase (PostgreSQL 17) | — | Data + Row Level Security |
+| **Auth** | Supabase Auth | — | Email/password + OAuth |
+| **Storage** | Supabase Storage (S3) | — | Product images, avatars |
+| **Image Processing** | Sharp | 0.33+ | Auto-WebP conversion on upload |
+| **Payments (SFW)** | Stripe | 20+ | Cards, Apple Pay, Google Pay |
+| **Payments (NSFW)** | PaymentCloud | — | High-risk adult processor |
+| **Payments (Alt)** | PayPal | — | SFW fallback |
+| **Email** | Resend | 6+ | Order confirmation emails |
+| **Hosting** | Netlify | — | CDN, serverless functions |
+| **State** | React Context + TanStack Query | — | Cart + data fetching |
+| **Forms** | React Hook Form + Zod | — | Validation |
+| **Animations** | Framer Motion | — | Page transitions |
 
 ---
 
 ## Project Structure
 
 ```
-BryanLeather/
-├── docs/                            # Documentation
-│   └── ARCHITECTURE.md              # This file
-├── public/                          # Static assets
-│   ├── fonts/
-│   ├── images/
-│   └── favicon.ico
-├── src/
-│   ├── app/                         # Next.js App Router
-│   │   ├── (storefront)/            # Public-facing route group
-│   │   │   ├── page.tsx             # Homepage / Landing
-│   │   │   ├── shop/
-│   │   │   │   ├── page.tsx         # Product listing (SFW/NSFW filter)
-│   │   │   │   └── [slug]/
-│   │   │   │       └── page.tsx     # Product detail
-│   │   │   ├── cart/
-│   │   │   │   └── page.tsx         # Shopping cart
-│   │   │   ├── checkout/
-│   │   │   │   ├── page.tsx         # Checkout flow
-│   │   │   │   └── success/
-│   │   │   │       └── page.tsx     # Order confirmation
-│   │   │   ├── events/
-│   │   │   │   └── page.tsx         # Events calendar
-│   │   │   ├── journal/
-│   │   │   │   ├── page.tsx         # Blog listing
-│   │   │   │   └── [slug]/
-│   │   │   │       └── page.tsx     # Blog post
-│   │   │   ├── about/
-│   │   │   │   └── page.tsx
-│   │   │   └── contact/
-│   │   │       └── page.tsx
-│   │   ├── (auth)/                  # Auth route group
-│   │   │   ├── login/
-│   │   │   │   └── page.tsx
-│   │   │   ├── signup/
-│   │   │   │   └── page.tsx
-│   │   │   └── callback/
-│   │   │       └── route.ts         # OAuth callback handler
-│   │   ├── (account)/               # Logged-in user area
-│   │   │   ├── layout.tsx           # Account layout (sidebar nav)
-│   │   │   ├── account/
-│   │   │   │   └── page.tsx         # Profile & settings
-│   │   │   ├── orders/
-│   │   │   │   ├── page.tsx         # Order history
-│   │   │   │   └── [id]/
-│   │   │   │       └── page.tsx     # Order detail + tracking
-│   │   │   ├── wishlist/
-│   │   │   │   └── page.tsx
-│   │   │   ├── addresses/
-│   │   │   │   └── page.tsx         # Saved shipping addresses
-│   │   │   └── preferences/
-│   │   │       └── page.tsx         # NSFW toggle, notifications
-│   │   ├── admin/                   # Admin dashboard (role-protected)
-│   │   │   ├── layout.tsx           # Admin layout with sidebar
-│   │   │   ├── page.tsx             # Dashboard overview
-│   │   │   ├── products/
-│   │   │   │   ├── page.tsx         # Product management
-│   │   │   │   ├── new/
-│   │   │   │   │   └── page.tsx
-│   │   │   │   └── [id]/
-│   │   │   │       └── page.tsx     # Edit product
-│   │   │   ├── orders/
-│   │   │   │   ├── page.tsx         # Order management
-│   │   │   │   └── [id]/
-│   │   │   │       └── page.tsx     # Order detail + status update
-│   │   │   ├── inventory/
-│   │   │   │   └── page.tsx
-│   │   │   ├── events/
-│   │   │   │   └── page.tsx         # Manage events
-│   │   │   ├── journal/
-│   │   │   │   ├── page.tsx         # Manage journal posts
-│   │   │   │   └── new/
-│   │   │   │       └── page.tsx     # New post editor
-│   │   │   ├── shipping/
-│   │   │   │   └── page.tsx
-│   │   │   ├── customers/
-│   │   │   │   └── page.tsx
-│   │   │   ├── staff/
-│   │   │   │   ├── page.tsx         # Staff list + role assignment
-│   │   │   │   └── [id]/
-│   │   │   │       └── page.tsx     # Edit staff member
-│   │   │   ├── settings/
-│   │   │   │   └── page.tsx         # Store settings, tax, etc.
-│   │   │   └── activity-log/
-│   │   │       └── page.tsx         # Audit trail of staff actions
-│   │   ├── api/                     # API routes (serverless)
-│   │   │   ├── stripe/
-│   │   │   │   ├── checkout/
-│   │   │   │   │   └── route.ts     # Create Stripe checkout session
-│   │   │   │   └── webhook/
-│   │   │   │       └── route.ts     # Stripe webhook handler
-│   │   │   ├── paymentcloud/
-│   │   │   │   └── webhook/
-│   │   │   │       └── route.ts     # PaymentCloud webhook handler
-│   │   │   └── admin/
-│   │   │       └── [...]/           # Admin API endpoints
-│   │   ├── layout.tsx               # Root layout
-│   │   ├── globals.css              # Global styles
-│   │   └── not-found.tsx
-│   ├── components/                  # Reusable components
-│   │   ├── ui/                      # Base UI (buttons, inputs, cards)
-│   │   ├── layout/                  # Header, Footer, Sidebar
-│   │   ├── shop/                    # Product cards, filters, cart
-│   │   ├── admin/                   # Admin-specific components
-│   │   └── common/                  # Shared (modals, loaders, etc.)
-│   ├── lib/                         # Utilities & configs
-│   │   ├── supabase/
-│   │   │   ├── client.ts            # Browser client
-│   │   │   ├── server.ts            # Server client (SSR)
-│   │   │   ├── admin.ts             # Service role client (API routes)
-│   │   │   └── middleware.ts        # Auth middleware helper
-│   │   ├── stripe.ts                # Stripe client setup
-│   │   ├── paymentcloud.ts          # PaymentCloud client setup
-│   │   ├── resend.ts                # Email client setup
-│   │   └── utils.ts                 # General utilities
-│   ├── hooks/                       # Custom React hooks
-│   │   ├── useCart.ts
-│   │   ├── useAuth.ts
-│   │   └── useProducts.ts
-│   ├── types/                       # TypeScript types
-│   │   ├── database.ts              # Generated from Supabase
-│   │   ├── product.ts
-│   │   ├── order.ts
-│   │   └── user.ts
-│   ├── styles/                      # CSS Modules
-│   │   ├── variables.css            # Design tokens
-│   │   └── components/              # Per-component CSS modules
-│   └── middleware.ts                # Next.js middleware (auth guards)
-├── supabase/                        # Supabase local config
-│   ├── migrations/                  # SQL migrations
-│   ├── seed.sql                     # Seed data
-│   └── config.toml
-├── .env.local                       # Environment variables (NOT committed)
-├── .env.example                     # Template for env vars
-├── netlify.toml                     # Netlify config
-├── next.config.ts                   # Next.js config
-├── tsconfig.json
-├── package.json
-├── LICENSE
-└── README.md
+src/
+├── app/
+│   ├── (auth)/              # Login, signup, forgot/reset password
+│   ├── (account)/           # Protected: account, orders, wishlist
+│   ├── admin/               # Admin dashboard (role-protected)
+│   │   ├── layout.tsx       # RBAC sidebar + auth check
+│   │   ├── products/        # Product CRUD
+│   │   ├── orders/          # Order management
+│   │   ├── categories/      # Collections CRUD
+│   │   ├── customers/
+│   │   └── settings/
+│   ├── shop/
+│   │   ├── page.tsx         # SFW product listing (is_visible categories)
+│   │   ├── [slug]/          # Product detail
+│   │   └── nsfw/            # 18+ product listing (age-gated)
+│   ├── api/
+│   │   ├── admin/
+│   │   │   ├── upload/      # POST: image upload + WebP conversion
+│   │   │   ├── products/    # POST: create product
+│   │   │   │   └── [id]/    # PUT/DELETE: update/delete product
+│   │   │   └── categories/  # GET/POST: list/create categories
+│   │   │       └── [id]/    # PUT/DELETE: update/delete category
+│   │   ├── checkout/        # Stripe + PayPal session creation
+│   │   └── webhook/stripe/  # Stripe payment webhooks
+│   └── layout.tsx           # Root layout (Header, Footer)
+│
+├── components/
+│   ├── layout/Header.tsx    # Sticky nav + working mobile menu drawer
+│   ├── admin/ProductForm.tsx # Product create/edit with WebP upload
+│   ├── AgeGate.tsx          # 18+ modal (localStorage cookie)
+│   └── CartDrawer.tsx       # Slide-out cart
+│
+├── lib/
+│   ├── supabase/
+│   │   ├── client.ts        # Browser client (anon key)
+│   │   ├── server.ts        # Server component client (cookies)
+│   │   ├── service.ts       # Service role client (bypasses RLS)
+│   │   └── middleware.ts    # Session refresh middleware
+│   └── utils.ts             # formatPrice, getStockLabel
+│
+└── middleware.ts             # Route protection (account, admin)
 ```
 
 ---
@@ -262,511 +120,336 @@ BryanLeather/
 
 ### Core Tables
 
-| Table | Purpose | Key Relations |
+| Table | Key Columns | Notes |
 |---|---|---|
-| `profiles` | Extended user data (name, avatar, role, NSFW pref) | FK → auth.users |
-| `products` | Product catalog | Has many variants, images |
-| `product_variants` | Size/color/material variants | FK → products |
-| `product_images` | Gallery images per product | FK → products |
-| `categories` | Product categories (SFW/NSFW, Cosplay, etc.) | Many-to-many with products |
-| `product_categories` | Join table for products ↔ categories | FK → products, categories |
-| `orders` | Customer orders | FK → profiles |
-| `order_items` | Line items per order | FK → orders, product_variants |
-| `cart_items` | Persistent cart (logged-in users) | FK → profiles, product_variants |
-| `events` | Conventions/fairs the studio attends | — |
-| `journal_posts` | Blog/journal entries | FK → profiles (author) |
-| `journal_tags` | Tag definitions | — |
-| `journal_post_tags` | Join table for posts ↔ tags | FK → journal_posts, journal_tags |
-| `comments` | Comments on journal posts | FK → journal_posts, profiles |
-| `wishlists` | Saved products | FK → profiles, products |
-| `shipping_addresses` | Saved addresses | FK → profiles |
-| `shipping_zones` | Shipping rate configuration | — |
-| `reviews` | Product reviews with rating | FK → products, profiles |
-| `staff_permissions` | Granular permissions per staff member | FK → profiles |
-| `activity_log` | Audit trail of all admin/staff actions | FK → profiles |
-| `notifications` | Back-in-stock queue, email log | FK → profiles |
-| `newsletter_subscribers` | Email list with opt-in status | FK → profiles (optional) |
+| `profiles` | id, email, role, nsfw_enabled | Auto-created on signup via trigger |
+| `products` | id, slug, is_nsfw, is_published, is_custom_order | Filtered by RLS |
+| `product_variants` | product_id, sku, price (cents), stock_count | At least 1 per product |
+| `product_images` | product_id, url, is_primary, sort_order | Supabase Storage URLs |
+| `product_categories` | product_id, category_id | Many-to-many join |
+| `categories` | id, slug, is_nsfw, **is_visible**, sort_order | `is_visible` controls shop filter display |
+| `orders` | user_id, status, payment_processor, order_number | WOL-1001+ sequence |
+| `order_items` | order_id, product_id, variant_id, quantity, unit_price | Snapshot of product at purchase |
 
-### Events Table Detail
+### is_visible Column (categories)
 
-| Column | Type | Notes |
+Added in migration `20260320000000`. Controls whether a category appears as a filter button in the public shop.
+
+- `is_visible = true` → shows in `/shop` filter bar
+- `is_visible = false` → hidden from shop (admin can still see all)
+
+Use this to hide internal/legacy categories without deleting them.
+
+### Row Level Security Overview
+
+| Table | Public Access | Admin Access |
 |---|---|---|
-| `id` | UUID | Primary key |
-| `title` | text | Event name |
-| `description` | text | Rich text description |
-| `start_date` | timestamptz | Start date/time |
-| `end_date` | timestamptz | End date/time |
-| `venue_name` | text | Venue/convention name |
-| `address` | text | Full address |
-| `lat` / `lng` | float | For Google Maps embed |
-| `image_url` | text | Event banner image |
-| `is_published` | boolean | Draft vs live |
-| `created_at` | timestamptz | Auto-set |
+| `products` | Published SFW only | All (via `is_admin()`) |
+| `products` (NSFW) | Only if `nsfw_enabled = true` in profile | All |
+| `product_categories` | SELECT allowed | Full CRUD |
+| `categories` | SELECT allowed | Full CRUD (manager+) |
+| `orders` | Own orders only | All |
+| storage/products | Public read | Upload/update/delete (content_editor+) |
 
-### Security: Row Level Security (RLS)
-
-All tables use Supabase RLS policies:
-- **Customers** can only read/write their own data (orders, wishlist, addresses, cart)
-- **Staff** can access data based on their role
-- **NSFW products** are filtered server-side based on age verification status
-- **Admin actions** are logged to `activity_log`
+**Important**: The NSFW shop page (`/shop/nsfw`) uses `createServiceClient()` to bypass RLS entirely, so all published NSFW products appear regardless of the viewer's `nsfw_enabled` flag. Age verification is handled client-side.
 
 ---
 
-## Key Architectural Decisions
+## Supabase Setup Guide
 
-### 1. Rendering Strategy
+### 1. Run Migrations
 
-| Page Type | Strategy | Reason |
-|---|---|---|
-| Product pages | ISR (revalidate on admin change) | Fast loads, fresh data |
-| Shop listing | SSR with search params | Filters, pagination |
-| Admin pages | Client-side rendering | Behind auth, data-heavy |
-| Journal/Events | SSG with on-demand revalidation | Content rarely changes |
+Apply all migration files in order from the Supabase dashboard SQL editor or via CLI:
 
-### 2. Cart Strategy
+```
+supabase/migrations/
+  20260212000000_initial_schema.sql          ← Core tables, RLS, indexes
+  20260212050000_checkout_additions.sql      ← Order numbers, guest checkout
+  20260212060000_add_video_url.sql           ← Product video URL field
+  20260212070000_storage_setup.sql           ← Storage bucket (old, superseded)
+  20260320000000_fix_policies_storage_categories.sql  ← APPLY THIS LAST
+```
 
-- **Guest users**: Cart stored in `localStorage`
-- **Logged-in users**: Cart synced to Supabase `cart_items` table
-- **On login**: Local cart merges into database cart
+The `20260320000000` migration is the most important for production:
+- Adds missing `product_categories` RLS policies (fixes broken category filters)
+- Adds `is_visible` to categories (removes cosplay from shop filter)
+- Recreates storage policies with correct `with check` clauses
+- Creates `products` and `avatars` storage buckets idempotently
 
-### 3. NSFW Content Handling
+### 2. Storage Bucket Verification
 
-- Products tagged with `is_nsfw` boolean
-- Age gate modal on first visit (stored in cookie, 30-day expiry)
-- NSFW filter toggle in user preferences (`/account/preferences`)
-- RLS policies enforce server-side filtering
+After running migrations, verify the bucket exists in Supabase Dashboard → Storage:
 
-### 4. Role-Based Access Control (RBAC)
+- `products` — public bucket, 50 MB limit, WebP/JPEG/PNG/GIF allowed
+- `avatars` — public bucket, 5 MB limit (optional)
 
-| Role | Access Level | Capabilities |
-|---|---|---|
-| `customer` | Public site + account area | Browse, buy, manage own orders & wishlist |
-| `fulfillment` | Admin: Orders, Shipping, Inventory | View orders, update status, print labels, adjust stock |
-| `content_editor` | Admin: Journal, Events | Create/edit blog posts, manage events calendar |
-| `manager` | Admin: Everything except staff | All of above + products, customers, reporting |
-| `owner` | Admin: Full access | All of above + staff management, store settings, activity log |
+If the bucket is missing, the migration will create it. If it already exists with wrong settings, the migration will update it via `ON CONFLICT DO UPDATE`.
 
-**Enforcement layers:**
-1. `profiles.role` column stores the user's role (default: `customer`)
-2. `staff_permissions` table allows granular overrides
-3. Next.js `middleware.ts` checks role on `/admin/*` routes
-4. Supabase RLS policies enforce at the database level (defense in depth)
-5. All admin actions logged to `activity_log`
+### 3. Set User Roles
 
----
+To grant admin access to a user, update their profile directly in the Supabase dashboard:
 
-## E-Commerce & Product System
+```sql
+UPDATE public.profiles
+SET role = 'owner'   -- or 'manager', 'content_editor', 'fulfillment'
+WHERE email = 'your@email.com';
+```
 
-### Product Categories
-
-| Category | Content Rating | Examples |
-|---|---|---|
-| General Leather Goods | SFW | Wallets, belts, bags, holsters, armor |
-| Cosplay | SFW | Armor sets, gauntlets, fantasy props |
-| BDSM Leather Goods | NSFW (18+) | Restraints, harnesses, collars, accessories |
-
-### Product Variants
-
-Each product can have multiple variant axes, configured per-product:
-
-| Variant Axis | Example Values |
-|---|---|
-| **Size** | XS, S, M, L, XL, Custom |
-| **Color** | Natural, Black, Brown, Oxblood, Custom |
-| **Material** | Full-grain, Top-grain, Veg-tan, Exotic |
-
-- Each unique combination = one `product_variant` row with its own price, SKU, and stock count
-- Not all products need all axes (a wallet may only have color, not size)
-
-### Custom & Made-to-Order Products
-
-1. Customer selects a "Custom Order" product
-2. Fills out custom order form (measurements, preferences, notes)
-3. System creates order with status `quote_requested`
-4. Admin reviews and sends quote with price & timeline (email)
-5. Customer approves quote and pays deposit
-6. Admin builds product, updates status along the way
-7. Admin ships completed product
-
-### Inventory Display Logic
-
-| Internal Stock | Customer-Facing Display |
-|---|---|
-| > threshold (default 10) | *(nothing — appears in stock)* |
-| 1–threshold | 🔥 **"Limited Supply"** badge |
-| 0 units | 🚫 **"Out of Stock"** — "Add to Cart" disabled |
-| Custom order | 🛠️ **"Made to Order"** — shows custom form |
-
-- Exact stock counts are **never** visible to customers
-- Low stock threshold is configurable by admin
-- Admin dashboard shows full stock counts + low stock alerts
+Roles are not settable by users themselves — only via direct database access or a future staff management UI.
 
 ---
 
-## NSFW / Age-Gated Content
+## Admin Access Control (RBAC)
 
-### Flow
+### Role Hierarchy
 
-1. User visits site
-2. If NSFW content is present → check for age verification cookie
-3. If no cookie → show Age Gate Modal
-4. If user confirms 18+ → set cookie (30-day expiry), show NSFW content
-5. If user declines → filter out all NSFW products
-6. Logged-in users can toggle NSFW visibility in `/account/preferences`
-7. Supabase RLS policies enforce filtering at the database level
+| Role | Dashboard | Products | Orders | Collections | Customers | Settings |
+|---|---|---|---|---|---|---|
+| `fulfillment` | — | — | ✓ | — | — | — |
+| `content_editor` | — | ✓ | — | ✓ | — | — |
+| `manager` | ✓ | ✓ | ✓ | ✓ | ✓ | — |
+| `owner` | ✓ | ✓ | ✓ | ✓ | ✓ | ✓ |
+
+### How It Works
+
+Access control happens at two layers:
+
+1. **Middleware** (`src/middleware.ts`) — checks auth on every `/admin` request, redirects to `/login` if not authenticated or not an admin role.
+
+2. **Layout** (`src/app/admin/layout.tsx`) — checks the specific role and renders only the nav items the user's role allows. Accessing a page directly that isn't in your nav is caught by the middleware.
+
+3. **API Routes** (`/api/admin/*`) — each route independently verifies admin status using `createClient()` before performing any action with `createServiceClient()`.
+
+### Visual Indicator
+
+The admin sidebar shows a colour-coded role badge:
+- Orange — Owner
+- Plum — Manager
+- Blue — Content Editor
+- Green — Fulfillment
+
+---
+
+## Product System
+
+### Creating a Product (Admin Flow)
+
+1. Navigate to `/admin/products/new`
+2. Fill in name, slug (auto-generated), descriptions
+3. Upload images — automatically converted to WebP via `POST /api/admin/upload`
+4. Set price (USD) and stock count
+5. Toggle Published, 18+ Only, Custom Order as needed
+6. Select one or more Collections
+7. Save — creates product, default variant, images, and category assignments via `POST /api/admin/products`
+
+### 18+ Products
+
+Check the "18+ Only" checkbox when creating a product. This sets `is_nsfw = true`. The product will:
+- NOT appear on `/shop` (filtered out by `is_nsfw = false` query)
+- Appear on `/shop/nsfw` (fetched via service role, bypasses RLS)
+- Be labelled with an 18+ badge if somehow visible in SFW context
+
+### Product Images
+
+All images uploaded through the admin form are automatically:
+1. Auto-rotated (EXIF orientation corrected)
+2. Resized to max 2000×2000px (preserves aspect ratio, never upscaled)
+3. Converted to WebP at quality 85
+4. Uploaded to the `products` Supabase Storage bucket
+5. URL saved to `product_images` table
+
+### Collections (Categories)
+
+Collections are managed at `/admin/categories`. Each collection has:
+- `is_visible` — whether it shows as a filter button on the public shop
+- `is_nsfw` — whether it appears in the 18+ section
+- `sort_order` — display order in filter bar
+
+---
+
+## Image Upload Pipeline
+
+```
+Admin uploads file
+       ↓
+POST /api/admin/upload
+       ↓
+Verify admin role (createClient)
+       ↓
+Read file buffer
+       ↓
+sharp: auto-rotate → resize(2000×2000, fit:inside) → webp(quality:85)
+       ↓
+supabase.storage.from('products').upload(filename.webp, buffer)   [service role]
+       ↓
+Return public URL
+       ↓
+ProductForm adds URL to images[] state
+       ↓
+On form save: POST /api/admin/products includes images[]
+       ↓
+product_images rows inserted via service role
+```
+
+---
+
+## 18+ / NSFW Content
+
+### Age Verification Flow
+
+1. User visits `/shop/nsfw`
+2. Client checks `localStorage.wol_age_verified`
+3. If not set → `<AgeGate>` modal blocks the page
+4. User confirms age → `localStorage.wol_age_verified = 'true'` set (30-day effective, no expiry on key)
+5. `NsfwShopClient` polls localStorage every 500ms and re-renders once verified
+
+### NSFW Products in RLS
+
+The Supabase RLS policy for NSFW products requires `nsfw_enabled = true` in the user's profile to view them via the regular client. However:
+
+- The `/shop/nsfw` page uses `createServiceClient()` — bypasses RLS entirely
+- The admin products page uses a server client with the logged-in admin's session — admin role policy allows viewing all products
+
+**User NSFW preference** is toggled at `/account` and stored in `profiles.nsfw_enabled`. This affects the regular shop page only — the NSFW shop is always accessible after age verification.
 
 ---
 
 ## Payment Processing
 
-### ⚠️ Critical: Dual Processor Requirement
-
-**Stripe explicitly prohibits BDSM and sexually-oriented products.** Using Stripe for NSFW items risks immediate account termination. **PayPal also restricts adult products.**
-
-### Split Processor Strategy
-
-| Product Type | Payment Processor | Fees |
+| Cart Contents | Processor | Notes |
 |---|---|---|
-| **SFW** (general leather, cosplay) | **Stripe** | ~2.9% + $0.30 |
-| **NSFW** (BDSM products) | **PaymentCloud** | ~3-5% + $0.30 |
+| SFW only | Stripe | Standard checkout session |
+| NSFW only | PaymentCloud | High-risk processor for adult content |
+| Mixed | Both | Cart splits into two orders |
 
-### Checkout Flow
+PayPal is available as an alternative for SFW orders only.
 
-- Cart automatically detects NSFW items
-- **SFW only** → routes to Stripe Checkout
-- **NSFW only** → routes to PaymentCloud
-- **Mixed cart** → automatically split into two separate orders with two payment flows
-
-### Payment Methods by Content Type
-
-| Payment Method | SFW Products | NSFW Products |
-|---|---|---|
-| Credit/Debit Card | ✅ Stripe | ✅ PaymentCloud |
-| Apple Pay | ✅ via Stripe | ❌ |
-| Google Pay | ✅ via Stripe | ❌ |
-| PayPal | ✅ | ❌ Prohibited |
-| Affirm/Klarna (BNPL) | 📋 Phase 2 | ❌ Prohibited |
+Order numbers follow the `WOL-1001` format, auto-assigned by a PostgreSQL sequence trigger on insert.
 
 ---
 
 ## Shipping
 
-### Phase 1 Features
+Shipping zones configured in `shipping_zones` table:
 
-| Feature | Details |
-|---|---|
-| Flat rate shipping | Configurable by admin per region |
-| Weight-based shipping | Calculated from product weight |
-| International shipping | Separate rate table for international zones |
-| Order tracking | Manual tracking number entry by admin |
-| Free shipping threshold | Configurable (e.g., "$100+ = free shipping") |
-
-### Shipping Zones
-
-| Zone | Coverage | Rate Type |
+| Zone | Countries | Rate |
 |---|---|---|
-| **Domestic** | Continental US | Flat rate or weight-based |
-| **Alaska/Hawaii** | US territories | Higher flat rate |
-| **Canada** | CA | International rate |
-| **International** | Rest of world | Admin-configurable |
-
-### Future Additions (Phase 2+)
-
-- Real-time carrier rates (USPS, UPS, FedEx API)
-- Shipping label providers (EasyPost or Shippo)
+| Domestic (Continental US) | US | $7.99 (free over $100) |
+| Alaska & Hawaii | US-AK, US-HI | $14.99 (free over $150) |
+| Canada | CA | $19.99 |
+| International | * | $29.99 |
 
 ---
 
-## Authentication & Social Login
+## Authentication
 
-### Phase 1 Providers
-
-| Provider | Notes |
+| Provider | Status |
 |---|---|
-| **Email/Password** | Standard signup with email verification |
-| **Google** | Supabase Auth built-in |
-| **Discord** | Popular in cosplay community |
+| Email/Password | Active |
+| Google OAuth | Configured via Supabase |
+| Discord OAuth | Configured via Supabase |
 
-### Future Providers
+Auth callbacks handled at `/auth/callback`. Sign out via `/auth/signout`.
 
-| Provider | Notes |
-|---|---|
-| **Apple** | Requires Apple Developer account |
-| **Facebook/Meta** | Requires Meta Business verification |
-
-All providers handled by Supabase Auth — no custom OAuth code needed. First social login auto-creates a `profiles` row via database trigger.
+Email templates (confirmation, password recovery) are in `/resources/email_templates/`. These must be manually uploaded to Supabase Auth → Email Templates in the dashboard.
 
 ---
 
-## User Features
+## Admin API Routes
 
-### Wishlist
-- Heart icon on product cards for quick add/remove
-- Wishlist page at `/account/wishlist`
-- **Back-in-stock notifications**: Automatic email when a wishlisted item returns to stock
+All admin routes live under `/api/admin/`. They independently verify the caller is an authenticated admin before executing.
 
-### Product Reviews & Ratings
-- 1–5 star rating + optional text review
-- "Verified Purchase" badge for confirmed buyers
-- Admin moderation (approve/hide reviews)
-- Average rating shown on product cards + full reviews on detail page
-
-### Order History & Tracking
-- Full order history at `/account/orders`
-- Each order shows: items, totals, payment status, shipping status, tracking link
-- Status progression: `pending → paid → processing → shipped → delivered`
-- Email notifications at each status change
-
-### Saved Addresses
-- Multiple shipping addresses per user with default selection
-- Auto-fills at checkout
-
-### Newsletter & Notifications
-- Newsletter opt-in during signup + toggle in preferences
-- Unsubscribe link in every email
-- Email service: **Resend** (generous free tier)
-
-| Notification | Trigger |
-|---|---|
-| Order confirmation | Payment completed |
-| Order shipped | Admin adds tracking number |
-| Back-in-stock | Wishlisted item restocked |
-| Newsletter | Admin sends campaign |
-| Price drop | 📋 Future |
+| Route | Method | Role Required | Purpose |
+|---|---|---|---|
+| `/api/admin/upload` | POST | content_editor+ | Upload image, returns WebP URL |
+| `/api/admin/products` | POST | content_editor+ | Create product with variant + images |
+| `/api/admin/products/[id]` | PUT | content_editor+ | Update product |
+| `/api/admin/products/[id]` | DELETE | manager+ | Delete product |
+| `/api/admin/categories` | GET | any admin | List all categories |
+| `/api/admin/categories` | POST | content_editor+ | Create category |
+| `/api/admin/categories/[id]` | PUT | content_editor+ | Update category |
+| `/api/admin/categories/[id]` | DELETE | manager+ | Delete category |
 
 ---
 
-## Events Calendar
+## Known Issues & Resolutions
 
-- Interactive calendar at `/events` using **FullCalendar.js**
-- Each event: name, date, time, description, venue, image
-- **Google Maps** embedded with "Get Directions" link
-- Past events auto-archive
-- Staff add events via `/admin/events` — simple form, no technical skills needed
+### Issue: Hamburger menu (three lines) did nothing on mobile
+**Root cause**: The `<button>` had no `onClick` handler and no state.
+**Fix**: Added `isMenuOpen` state to `Header.tsx`, slide-down drawer with overlay, body scroll lock, and route-change auto-close.
 
----
+### Issue: 18+ items not appearing after being published
+**Root causes**:
+1. `ProductForm` was using the anon browser client directly for database writes — if the user's session wasn't perfectly in sync, the admin RLS check could fail silently.
+2. The `products` storage bucket may not have existed on the remote Supabase instance.
+**Fix**: All admin writes now go through server-side API routes (`/api/admin/products`) that use the service role key, bypassing RLS entirely for admin operations. Storage bucket creation is idempotent in the new migration.
 
-## Journal / Blog
+### Issue: Product photos not appearing
+**Root causes**:
+1. Storage bucket may not exist on remote Supabase.
+2. Images uploaded via anon client could fail if storage RLS policies weren't applied.
+**Fix**: New migration ensures bucket exists. Image upload now goes through `/api/admin/upload` (server-side, service role). Images are also auto-converted to WebP.
 
-- **Authors**: Staff only (`content_editor`, `manager`, `owner`)
-- **Editor**: Tiptap WYSIWYG — drag & drop images, formatting toolbar, no code needed
-- **Rich media**: Images, embedded YouTube/Vimeo, image galleries
-- **Categories**: E.g., "Behind the Scenes", "Conventions", "Tutorials"
-- **Tags**: Freeform tags for flexible grouping
-- **Comments**: Logged-in users can comment; admin moderation
-- **Draft/Published**: Posts can be saved as drafts before publishing
-- **SEO**: Auto-generated slugs and meta descriptions
+### Issue: Category filter showing "Cosplay"
+**Fix**: Added `is_visible` column to categories. Migration sets `cosplay.is_visible = false`. Shop page now filters `is_visible = true`.
 
----
+### Issue: Admin categories page was read-only
+**Fix**: Full CRUD implemented in `CategoryManager.tsx` client component with modal form. Supports create, edit, delete, and visibility toggle.
 
-## Order Management & Returns
+### Issue: Blurbs on homepage and About page didn't describe WOL accurately
+**Fix**: Updated `page.tsx` and `about/page.tsx` copy to reference all three product lines (everyday carry, armor/convention, 18+ leather goods) and reflect the Nebraska studio context.
 
-### Order Lifecycle
-
-```
-[New Order] → pending → paid → processing → shipped → delivered
-                          │                     │
-                          ▼                     ▼
-                   refund_requested      return_requested
-                          │                     │
-                          ▼                     ▼
-                       refunded          return_received → refunded
-```
-
-### Automated Email Notifications
-
-| Trigger | Email Sent | Recipient |
-|---|---|---|
-| Order placed | Order confirmation + receipt | Customer |
-| Payment confirmed | Payment receipt | Customer |
-| Order processing | "Your order is being prepared" | Customer |
-| Order shipped | Shipping confirmation + tracking | Customer |
-| Refund requested | Acknowledgment | Customer + Admin |
-| Refund processed | Refund confirmation | Customer |
-| Return approved | Return instructions | Customer |
-
-### Refund & Return Process
-
-1. Customer requests refund/return from `/account/orders/[id]`
-2. Admin reviews in `/admin/orders/[id]`
-3. Admin approves → refund processed via Stripe/PaymentCloud API
-4. Customer receives email confirmation
-5. For returns: admin provides return shipping instructions, marks as received, then refunds
+### Issue: No policies on product_categories table (broken category filter queries)
+**Root cause**: RLS was enabled on `product_categories` but no policies were defined → all queries using `product_categories!inner` in joins returned 0 results.
+**Fix**: Migration adds `"Anyone can view product category assignments"` (SELECT, `using(true)`) and `"Admins can manage product category assignments"` (ALL, `using(is_admin())`).
 
 ---
 
-## Admin Reporting & Dashboard
+## Environment Variables
 
-### Phase 1 Widgets
-
-| Widget | Data |
-|---|---|
-| Revenue today/week/month | Stripe + PaymentCloud totals |
-| Orders count by status | Pending, processing, shipped |
-| Low stock alerts | Products below threshold |
-| Recent orders | Last 10 orders quick view |
-
-### Phase 2 Additions
-
-| Widget | Data |
-|---|---|
-| Top selling products | Best sellers chart |
-| Customer analytics | New vs returning, location |
-| Revenue charts | Over time, by category |
-
----
-
-## Brand Identity & Design
-
-### Colors
-
-| Name | Hex | Usage |
-|---|---|---|
-| **Black** | `#000000` | Primary background, text on light |
-| **Orange** | `#FE602F` | CTAs, accents, hover states, prices |
-| **Plum** | `#820263` | Secondary accent, headings, links |
-| **Dark Gray** | `#1A1A1A` | Card backgrounds, elevated surfaces |
-| **Light Gray** | `#E5E5E5` | Muted text, borders, dividers |
-| **White** | `#FFFFFF` | Text on dark backgrounds |
-
-### Fonts (Google Fonts)
-
-| Role | Font | Style |
-|---|---|---|
-| **H1 / Hero** | Comforter | Flowing script — brand personality |
-| **H2–H4 / Subtitles** | Charm | Decorative serif — warmth |
-| **Body / UI** | Alice | Readable serif — elegant yet legible |
-
-### Design Aesthetic: Dark Gothic
-
-- **Dark backgrounds** (`#000000`, `#1A1A1A`) with light text
-- **Orange accents** for action items — buttons, links, prices
-- **Plum tones** for secondary highlights — headings, badges, hover
-- **Leather textures**: Subtle leather-grain patterns as background overlays
-- **Gothic elements**: Sharp borders, ornamental dividers, dramatic spacing
-- **Product photography**: Dark backdrop product shots for cohesion
-- **Micro-animations**: Fade-in on scroll, hover glow on products, subtle parallax
-- **Cards**: Dark glass-morphism with subtle border glow
-
-### CSS Design Tokens
-
-```css
-:root {
-  /* Brand Colors */
-  --color-black: #000000;
-  --color-orange: #FE602F;
-  --color-plum: #820263;
-  --color-dark-gray: #1A1A1A;
-  --color-light-gray: #E5E5E5;
-  --color-white: #FFFFFF;
-
-  /* Semantic */
-  --color-bg-primary: var(--color-black);
-  --color-bg-elevated: var(--color-dark-gray);
-  --color-text-primary: var(--color-white);
-  --color-text-muted: var(--color-light-gray);
-  --color-accent-primary: var(--color-orange);
-  --color-accent-secondary: var(--color-plum);
-  --color-cta: var(--color-orange);
-
-  /* Typography */
-  --font-display: 'Comforter', cursive;
-  --font-subtitle: 'Charm', serif;
-  --font-body: 'Alice', serif;
-
-  /* Spacing */
-  --space-xs: 0.25rem;
-  --space-sm: 0.5rem;
-  --space-md: 1rem;
-  --space-lg: 2rem;
-  --space-xl: 4rem;
-
-  /* Borders */
-  --radius-sm: 4px;
-  --radius-md: 8px;
-  --radius-lg: 16px;
-}
-```
-
----
-
-## Phased Launch Plan
-
-### Phase 1 — MVP Launch (Core Store)
-
-- [x] Project scaffold + design system
-- [ ] Landing page with brand identity
-- [ ] Product catalog (SFW + NSFW with age gate)
-- [ ] Product detail pages with variants
-- [ ] Shopping cart + Stripe checkout (SFW)
-- [ ] PaymentCloud checkout (NSFW)
-- [ ] PayPal (SFW only)
-- [ ] User auth (Email, Google, Discord)
-- [ ] User account (profile, orders, wishlist, addresses, preferences)
-- [ ] Admin: Product CRUD, order management, basic dashboard
-- [ ] Shipping zones + flat rate / weight-based
-- [ ] Email notifications via Resend
-
-### Phase 2 — Content & Community
-
-- [ ] Events calendar with Google Maps
-- [ ] Journal/blog with Tiptap editor
-- [ ] Product reviews & ratings
-- [ ] Newsletter system
-- [ ] Comments on journal posts
-- [ ] Refund/return processing
-- [ ] Admin reporting (charts, analytics)
-
-### Phase 3 — Advanced
-
-- [ ] Custom order workflow (form → quote → build → ship)
-- [ ] BNPL (Affirm/Klarna) for SFW
-- [ ] Real-time carrier shipping rates
-- [ ] Shipping label providers (EasyPost/Shippo)
-- [ ] Social login: Apple, Facebook
-- [ ] Advanced analytics
-- [ ] Recurring events
-- [ ] Back-in-stock notifications
-- [ ] Price drop alerts
-
----
-
-## Development Workflow
-
-1. **Local Development**: `supabase start` (local Supabase via Docker) + `npm run dev`
-2. **Push to GitHub**: Triggers Netlify deploy preview
-3. **Merge to main**: Auto-deploys to production on Netlify
-4. **Database changes**: Supabase CLI migrations pushed separately
-
-### Environment Variables Required
-
-```env
+```bash
 # Supabase
-NEXT_PUBLIC_SUPABASE_URL=
-NEXT_PUBLIC_SUPABASE_ANON_KEY=
-SUPABASE_SERVICE_ROLE_KEY=
+NEXT_PUBLIC_SUPABASE_URL=https://xxxx.supabase.co
+NEXT_PUBLIC_SUPABASE_ANON_KEY=eyJ...
+SUPABASE_SERVICE_ROLE_KEY=eyJ...        # Server-side only, never expose to client
 
 # Stripe (SFW payments)
-STRIPE_SECRET_KEY=
-STRIPE_WEBHOOK_SECRET=
-NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY=
+STRIPE_SECRET_KEY=sk_live_...
+STRIPE_WEBHOOK_SECRET=whsec_...
+NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY=pk_live_...
 
 # PaymentCloud (NSFW payments)
-PAYMENTCLOUD_API_KEY=
-PAYMENTCLOUD_WEBHOOK_SECRET=
+PAYMENTCLOUD_API_KEY=...
+PAYMENTCLOUD_WEBHOOK_SECRET=...
 
-# PayPal (SFW only)
-PAYPAL_CLIENT_ID=
-PAYPAL_SECRET=
+# PayPal (SFW alternative)
+PAYPAL_CLIENT_ID=...
+PAYPAL_SECRET=...
 
-# Resend (email)
-RESEND_API_KEY=
+# Email
+RESEND_API_KEY=re_...                   # Requires domain verification
 
-# Google Maps
-NEXT_PUBLIC_GOOGLE_MAPS_API_KEY=
+# Site
+NEXT_PUBLIC_SITE_URL=https://wizardoflight.com
 ```
 
 ---
 
-*Document maintained by the development team. Last updated: February 12, 2026.*
+## Deployment (Netlify)
+
+Build config in `netlify.toml`:
+- Build command: `npm run build`
+- Publish dir: `.next`
+- Node: 20
+- Plugin: `@netlify/plugin-nextjs`
+
+**Sharp requires native binaries** — Netlify builds on Linux so this works correctly in production. For local development on Apple Silicon (M1/M2/M3), `npm install` downloads the correct macOS ARM binary automatically.
+
+### Post-deployment checklist
+
+1. Run all Supabase migrations (especially `20260320000000`)
+2. Verify `products` storage bucket exists and is public
+3. Set admin user role in profiles table
+4. Upload email templates to Supabase Auth dashboard
+5. Configure Stripe webhook endpoint: `https://yourdomain.com/api/webhook/stripe`
+6. Set all environment variables in Netlify dashboard

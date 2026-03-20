@@ -2,7 +2,7 @@
    Wizard Of Light — Global Styles
    ======================================== */
 
-@import url('https://fonts.googleapis.com/css2?family=Alice&family=Charm:wght@400;700&family=Comforter&display=swap');
+/* Fonts are loaded via next/font in layout.tsx — no external @import needed */
 @import '../styles/variables.css';
 
 /* ---- Reset & Base ---- */
