@@ -84,7 +84,8 @@ export function useAuth() {
 
     const signOut = useCallback(async () => {
         console.log('Signing out...');
-        const { error } = await supabase.auth.signOut();
+        // Sign out and clear all cookies
+        const { error } = await supabase.auth.signOut({ scope: 'global' });
         if (error) {
             console.error('Sign out error:', error);
         } else {
@@ -92,6 +93,8 @@ export function useAuth() {
         }
         setUser(null);
         setRole(null);
+        // Force reload to clear any cached state
+        window.location.replace('/');
     }, []);
 
     return { user, role, loading, signOut };

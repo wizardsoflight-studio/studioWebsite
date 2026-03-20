@@ -160,12 +160,9 @@ export default function Header() {
                                     <button
                                         type="button"
                                         className={styles.dropdownItem}
-                                        onClick={() => {
+                                        onClick={async () => {
                                             setShowAccountDropdown(false);
-                                            signOut();
-                                            setTimeout(() => {
-                                                window.location.href = '/';
-                                            }, 100);
+                                            await signOut();
                                         }}
                                     >
                                         <LogOut size={18} />
