@@ -3,14 +3,14 @@
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { ShoppingBag, Heart, User, Menu, X, LogOut, ChevronDown } from 'lucide-react';
+import { ShoppingBag, Heart, User, Menu, X, LogOut, ChevronDown, Shield } from 'lucide-react';
 import { useCart } from '@/context/CartContext';
 import { useAuth } from '@/hooks/useAuth';
 import styles from './Header.module.css';
 
 export default function Header() {
     const { itemCount, openCart } = useCart();
-    const { user, signOut } = useAuth();
+    const { user, role, signOut } = useAuth();
     const [isMenuOpen, setIsMenuOpen] = useState(false);
     const [showAccountDropdown, setShowAccountDropdown] = useState(false);
     const pathname = usePathname();
@@ -79,6 +79,22 @@ export default function Header() {
                 </nav>
 
                 <div className={styles.actions}>
+                    {/* Admin Link - Only for admins */}
+                    {role === 'admin' && (
+                        <Link href="/admin" className={styles.adminLink}>
+                            <Shield size={18} />
+                            <span>Admin</span>
+                        </Link>
+                    )}
+
+                    {/* Staff Link - Only for staff */}
+                    {role === 'staff' && (
+                        <Link href="/admin/staff" className={styles.adminLink}>
+                            <Shield size={18} />
+                            <span>Staff</span>
+                        </Link>
+                    )}
+
                     <Link href="/account/wishlist" className={styles.iconBtn} aria-label="Wishlist">
                         <Heart size={20} />
                     </Link>

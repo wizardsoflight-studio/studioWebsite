@@ -129,6 +129,28 @@
     transform: translateY(-1px);
 }
 
+/* ---- Admin/Staff Link ---- */
+.adminLink {
+    display: flex;
+    align-items: center;
+    gap: var(--space-xs);
+    padding: var(--space-sm) var(--space-md);
+    background: rgba(254, 96, 47, 0.15);
+    border: 1px solid rgba(254, 96, 47, 0.3);
+    border-radius: var(--radius-md);
+    color: var(--color-accent-primary);
+    text-decoration: none;
+    font-size: var(--text-sm);
+    font-weight: var(--weight-semibold);
+    transition: all var(--transition-fast);
+    margin-right: var(--space-sm);
+}
+
+.adminLink:hover {
+    background: rgba(254, 96, 47, 0.25);
+    transform: translateY(-1px);
+}
+
 /* ---- Account Dropdown ---- */
 .accountWrapper {
     position: relative;
