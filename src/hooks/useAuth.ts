@@ -17,18 +17,23 @@ export function useAuth() {
     );
 
     const getRole = useCallback(async (userId: string) => {
-        // Use RPC function for faster role lookup
-        const { data, error } = await supabase.rpc('get_user_role');
-        if (error || !data) {
-            // Fallback to direct query
-            const { data: profileData } = await supabase
+        try {
+            // Direct query to profiles table
+            const { data, error } = await supabase
                 .from('profiles')
                 .select('role')
                 .eq('id', userId)
                 .single();
-            return profileData?.role as UserRole;
+
+            if (error) {
+                console.error('Error fetching role:', error);
+                return 'customer' as UserRole;
+            }
+            return data?.role as UserRole;
+        } catch (err) {
+            console.error('Unexpected error fetching role:', err);
+            return 'customer' as UserRole;
         }
-        return data as UserRole;
     }, []);
 
     useEffect(() => {
