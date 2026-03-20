@@ -13,7 +13,7 @@ async function requireAdmin(request: NextRequest) {
         .eq('id', user.id)
         .single();
 
-    const allowed = ['owner', 'manager', 'content_editor'];
+    const allowed = ['admin', 'staff'];
     if (!profile || !allowed.includes(profile.role)) return null;
 
     return { user, role: profile.role };

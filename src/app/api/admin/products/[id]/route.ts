@@ -13,7 +13,7 @@ async function requireAdmin() {
         .eq('id', user.id)
         .single();
 
-    const allowed = ['owner', 'manager', 'content_editor'];
+    const allowed = ['admin', 'staff'];
     if (!profile || !allowed.includes(profile.role)) return null;
 
     return { user, role: profile.role };
@@ -143,7 +143,7 @@ export async function DELETE(
     }
 
     // Only owner/manager can delete products
-    if (!['owner', 'manager'].includes(admin.role)) {
+    if (admin.role !== 'admin') {
         return NextResponse.json({ error: 'Forbidden — only managers can delete products' }, { status: 403 });
     }
 

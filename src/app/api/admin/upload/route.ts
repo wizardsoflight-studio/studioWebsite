@@ -26,7 +26,7 @@ export async function POST(request: NextRequest) {
         .eq('id', user.id)
         .single();
 
-    const allowed = ['owner', 'manager', 'content_editor'];
+    const allowed = ['admin', 'staff'];
     if (!profile || !allowed.includes(profile.role)) {
         return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
     }

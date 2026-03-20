@@ -4,7 +4,7 @@
  * once the database is set up (npx supabase gen types typescript)
  */
 
-export type UserRole = 'customer' | 'fulfillment' | 'content_editor' | 'manager' | 'owner';
+export type UserRole = 'customer' | 'staff' | 'admin';
 
 export type OrderStatus =
     | 'pending'
