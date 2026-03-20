@@ -6,7 +6,6 @@ import { usePathname } from 'next/navigation';
 import { ShoppingBag, Heart, User, Menu, X, LogOut, ChevronDown, Shield } from 'lucide-react';
 import { useCart } from '@/context/CartContext';
 import { useAuth } from '@/hooks/useAuth';
-import { signOut } from '@/lib/actions/auth';
 import styles from './Header.module.css';
 
 export default function Header() {
@@ -151,11 +150,10 @@ export default function Header() {
                                         Wishlist
                                     </Link>
                                     <div className={styles.dropdownDivider} />
-                                    <form action={signOut}>
+                                    <form action="/auth/signout" method="POST">
                                         <button
                                             type="submit"
                                             className={styles.dropdownItem}
-                                            onClick={() => setShowAccountDropdown(false)}
                                         >
                                             <LogOut size={18} />
                                             Sign Out
