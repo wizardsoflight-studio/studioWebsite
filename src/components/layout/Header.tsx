@@ -47,12 +47,6 @@ export default function Header() {
 
     const closeMenu = () => setIsMenuOpen(false);
 
-    const handleSignOut = async () => {
-        setShowAccountDropdown(false);
-        await signOut();
-        window.location.href = '/';
-    };
-
     const handleDropdownClick = (callback: () => void) => {
         return (e: React.MouseEvent) => {
             e.stopPropagation();
@@ -166,7 +160,13 @@ export default function Header() {
                                     <button
                                         type="button"
                                         className={styles.dropdownItem}
-                                        onClick={handleSignOut}
+                                        onClick={() => {
+                                            setShowAccountDropdown(false);
+                                            signOut();
+                                            setTimeout(() => {
+                                                window.location.href = '/';
+                                            }, 100);
+                                        }}
                                     >
                                         <LogOut size={18} />
                                         Sign Out

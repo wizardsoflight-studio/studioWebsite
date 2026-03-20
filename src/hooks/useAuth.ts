@@ -78,7 +78,13 @@ export function useAuth() {
     }, [getRole]);
 
     const signOut = useCallback(async () => {
-        await supabase.auth.signOut();
+        console.log('Signing out...');
+        const { error } = await supabase.auth.signOut();
+        if (error) {
+            console.error('Sign out error:', error);
+        } else {
+            console.log('Signed out successfully');
+        }
         setUser(null);
         setRole(null);
     }, []);
