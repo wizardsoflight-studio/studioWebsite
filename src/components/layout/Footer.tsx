@@ -45,21 +45,22 @@ export default function Footer() {
                     </ul>
                 </div>
 
-                <div className={styles.column}>
-                    <h4>Legal</h4>
-                    <ul>
-                        <li><Link href="/privacy">Privacy Policy</Link></li>
-                        <li><Link href="/terms">Terms of Use</Link></li>
-                    </ul>
-                </div>
+
             </div>
 
             <div className={styles.footerBottom}>
-                <p className={styles.copyright}>
+                <p className={styles.copyright} style={{ margin: 0 }}>
                     © {currentYear} Wizard Of Light. All rights reserved.
                 </p>
-                <p className={styles.copyright} style={{ marginTop: '0.5rem', fontSize: '0.75rem', opacity: 0.7 }}>
-                    Designed by <a href="https://lumenworks.app" target="_blank" rel="noopener noreferrer" style={{ color: 'inherit', textDecoration: 'underline' }}>LumenWorks LLC NE</a>
+                
+                <div className={styles.copyright} style={{ display: 'flex', gap: '1rem', opacity: 0.8, margin: 0 }}>
+                    <Link href="/privacy" style={{ color: 'inherit', textDecoration: 'none' }}>Privacy Policy</Link>
+                    <span style={{ opacity: 0.5 }}>|</span>
+                    <Link href="/terms" style={{ color: 'inherit', textDecoration: 'none' }}>Terms of Use</Link>
+                </div>
+
+                <p className={styles.copyright} style={{ fontSize: '0.75rem', opacity: 0.7, margin: 0 }}>
+                    Website developed by <a href="https://lumenworks.app" target="_blank" rel="noopener noreferrer" style={{ color: 'inherit', textDecoration: 'underline' }}>lumenworks.app</a> (LumenWorks LLC, Nebraska)
                 </p>
                 <div className={styles.socials}>
                     {/* Social links will be added when URLs are provided */}
