@@ -44,6 +44,14 @@ export default function Footer() {
                         <li><Link href="/account/preferences">Preferences</Link></li>
                     </ul>
                 </div>
+
+                <div className={styles.column}>
+                    <h4>Legal</h4>
+                    <ul>
+                        <li><Link href="/privacy">Privacy Policy</Link></li>
+                        <li><Link href="/terms">Terms of Use</Link></li>
+                    </ul>
+                </div>
             </div>
 
             <div className={styles.footerBottom}>
