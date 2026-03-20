@@ -29,13 +29,12 @@ export async function updateSession(request: NextRequest) {
         }
     );
 
-    // Get session from cookie - don't call getUser() on every request
-    // Let Server Components handle session validation
+    // Get session
     const {
         data: { session },
     } = await supabase.auth.getSession();
 
-    // Protect /account routes
+    // Protect /account routes - require authentication
     if (request.nextUrl.pathname.startsWith('/account') && !session) {
         const url = request.nextUrl.clone();
         url.pathname = '/login';
@@ -43,7 +42,8 @@ export async function updateSession(request: NextRequest) {
         return NextResponse.redirect(url);
     }
 
-    // Protect /admin routes - check for admin or staff role
+    // Protect /admin routes - require authentication
+    // Role checking happens in the page itself, not middleware (to avoid RLS issues)
     if (request.nextUrl.pathname.startsWith('/admin')) {
         if (!session?.user) {
             const url = request.nextUrl.clone();
@@ -51,32 +51,13 @@ export async function updateSession(request: NextRequest) {
             url.searchParams.set('redirect', request.nextUrl.pathname);
             return NextResponse.redirect(url);
         }
+    }
 
-        // Only check role for /admin routes (not /admin/staff)
-        // Staff can access /admin/staff, admins can access all /admin/*
-        const { data: profile } = await supabase
-            .from('profiles')
-            .select('role')
-            .eq('id', session.user.id)
-            .single();
-
-        const isAdmin = profile?.role === 'admin';
-        const isStaff = profile?.role === 'staff';
-        const isStaffPath = request.nextUrl.pathname.startsWith('/admin/staff');
-
-        // Block non-admin users from admin dashboard, allow staff only on staff paths
-        if (!isAdmin && !isStaff) {
-            const url = request.nextUrl.clone();
-            url.pathname = '/';
-            return NextResponse.redirect(url);
-        }
-
-        // Redirect staff away from main admin dashboard
-        if (isStaff && !isAdmin && !isStaffPath) {
-            const url = request.nextUrl.clone();
-            url.pathname = '/admin/staff';
-            return NextResponse.redirect(url);
-        }
+    // Redirect logged-in users away from login/signup pages
+    if (session && (request.nextUrl.pathname === '/login' || request.nextUrl.pathname === '/signup')) {
+        const url = request.nextUrl.clone();
+        url.pathname = '/account';
+        return NextResponse.redirect(url);
     }
 
     return supabaseResponse;

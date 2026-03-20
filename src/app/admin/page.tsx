@@ -6,7 +6,7 @@ import styles from './admin.module.css';
 
 export default async function AdminDashboard() {
     const supabase = await createClient();
-    
+
     const {
         data: { user },
     } = await supabase.auth.getUser();
@@ -15,29 +15,23 @@ export default async function AdminDashboard() {
         redirect('/login');
     }
 
+    // Get user's role directly from the profile
     const { data: profile } = await supabase
         .from('profiles')
-        .select('*')
+        .select('id, email, full_name, role')
         .eq('id', user.id)
         .single();
 
-    // Redirect non-admins
+    // Redirect non-admins to account page
     if (profile?.role !== 'admin') {
         redirect('/account');
     }
 
-    // Fetch dashboard stats
+    // Fetch dashboard stats - handle potential errors
     const { data: stats } = await supabase
         .from('admin_dashboard_stats')
         .select('*')
         .single();
-
-    // Fetch recent users
-    const { data: recentUsers } = await supabase
-        .from('profiles')
-        .select('id, email, full_name, role, created_at')
-        .order('created_at', { ascending: false })
-        .limit(10);
 
     // Fetch all users with roles for management
     const { data: allUsers } = await supabase
