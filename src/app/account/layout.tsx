@@ -1,7 +1,7 @@
 import { redirect } from 'next/navigation';
 import Link from 'next/link';
 import { User, Package, Heart, MapPin, Settings, LogOut } from 'lucide-react';
-import { createClient } from '@/lib/supabase/server';
+import { getAuthUser, getUserProfile } from '@/lib/supabase/server';
 import styles from './account.module.css';
 import type { Metadata } from 'next';
 
@@ -14,20 +14,13 @@ export default async function AccountLayout({
 }: {
     children: React.ReactNode;
 }) {
-    const supabase = await createClient();
-    const {
-        data: { user },
-    } = await supabase.auth.getUser();
+    const { user } = await getAuthUser();
 
     if (!user) {
         redirect('/login');
     }
 
-    const { data: profile } = await supabase
-        .from('profiles')
-        .select('full_name, email')
-        .eq('id', user.id)
-        .single();
+    const { profile } = await getUserProfile(user.id);
 
     return (
         <div className={styles.accountPage}>

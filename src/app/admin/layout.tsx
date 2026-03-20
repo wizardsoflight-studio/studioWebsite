@@ -1,7 +1,7 @@
 import { redirect } from 'next/navigation';
 import Link from 'next/link';
 import { BarChart3, Package, ShoppingCart, Users, Settings, Tag, Shield } from 'lucide-react';
-import { createClient } from '@/lib/supabase/server';
+import { getAuthUser, getUserProfile } from '@/lib/supabase/server';
 import styles from './admin.module.css';
 
 type AdminRole = 'owner' | 'manager' | 'content_editor' | 'fulfillment';
@@ -34,18 +34,13 @@ export default async function AdminLayout({
 }: {
     children: React.ReactNode;
 }) {
-    const supabase = await createClient();
-    const { data: { user } } = await supabase.auth.getUser();
+    const { user } = await getAuthUser();
 
     if (!user) {
         redirect('/login?redirect=/admin');
     }
 
-    const { data: profile } = await supabase
-        .from('profiles')
-        .select('role, full_name, email')
-        .eq('id', user.id)
-        .single();
+    const { profile } = await getUserProfile(user.id);
 
     const adminRoles: AdminRole[] = ['owner', 'manager', 'content_editor', 'fulfillment'];
     if (!profile || !adminRoles.includes(profile.role as AdminRole)) {
